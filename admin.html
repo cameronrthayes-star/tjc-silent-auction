@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Auction Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --bg:#F4F1EA; --surface:#FFFDF8; --surface-2:#EDE8DE; --surface-3:#E3DCCE;
+  --ink:#1A211D; --ink-2:#4A5852; --ink-3:#6E7C75;
+  --line:#DCD5C8; --line-2:#C8BFAE;
+  --brand:#1D4A3B; --brand-2:#2C6B55; --on-brand:#F6F3EC;
+  --slate:#4A5F6B; --slate-soft:#E4E9EC;
+  --accent:#C0651F; --accent-ink:#8B4513; --accent-soft:#F8E7D6;
+  --ok:#2F6B4F; --ok-soft:#E1EFE7;
+  --warn-soft:#FBEFD4; --warn-ink:#7A5310;
+  --danger:#A32B1E; --danger-soft:#F9E3E0;
+  --focus:#C0651F;
+  --shadow:0 1px 2px rgba(26,33,29,.06), 0 6px 18px rgba(26,33,29,.07);
+  --r:14px; --r-sm:10px;
+  --ff-display:"Fraunces","Iowan Old Style",Georgia,serif;
+  --ff-ui:"Public Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --tap:44px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#111714; --surface:#1A211D; --surface-2:#232B26; --surface-3:#2C352F;
+    --ink:#ECE7DC; --ink-2:#B4BCB5; --ink-3:#8B958C;
+    --line:#333D37; --line-2:#44504A;
+    --brand:#5FA887; --brand-2:#7CC0A0; --on-brand:#0E1411;
+    --slate:#8FA6B3; --slate-soft:#232E34;
+    --accent:#E08B44; --accent-ink:#EFA76A; --accent-soft:#33261B;
+    --ok:#63B489; --ok-soft:#1C2A22;
+    --warn-soft:#2E2414; --warn-ink:#E0B667;
+    --danger:#E4796A; --danger-soft:#2E1A17;
+    --focus:#E08B44;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 6px 18px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#111714; --surface:#1A211D; --surface-2:#232B26; --surface-3:#2C352F;
+  --ink:#ECE7DC; --ink-2:#B4BCB5; --ink-3:#8B958C; --line:#333D37; --line-2:#44504A;
+  --brand:#5FA887; --brand-2:#7CC0A0; --on-brand:#0E1411; --slate:#8FA6B3; --slate-soft:#232E34;
+  --accent:#E08B44; --accent-ink:#EFA76A; --accent-soft:#33261B; --ok:#63B489; --ok-soft:#1C2A22;
+  --warn-soft:#2E2414; --warn-ink:#E0B667; --danger:#E4796A; --danger-soft:#2E1A17; --focus:#E08B44;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--ff-ui);font-size:15px;line-height:1.5}
+h1,h2,h3,h4{font-family:var(--ff-display);font-weight:600;line-height:1.2;margin:0}
+p{margin:0 0 .7em}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+@media (prefers-reduced-motion: reduce){*{animation-duration:.001ms!important;transition-duration:.001ms!important}}
+a{color:var(--brand)}
+
+header.bar{background:var(--brand);color:var(--on-brand);border-bottom:3px solid var(--accent)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) header.bar{background:#17231D;color:var(--ink)}}
+.bar-in{max-width:1180px;margin:0 auto;padding:14px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.bar h1{font-size:1.25rem}
+.bar .eyebrow{font-size:.64rem;text-transform:uppercase;letter-spacing:.14em;opacity:.85;font-weight:700}
+.bar .right{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:.84rem}
+.bar .right button{background:transparent;border:1px solid currentColor;color:inherit;border-radius:999px;
+  padding:6px 14px;font-size:.8rem;font-weight:600;cursor:pointer;min-height:36px}
+
+nav.tabs{background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:30;overflow-x:auto}
+.tabs-in{max-width:1180px;margin:0 auto;display:flex;gap:2px;padding:0 12px}
+nav.tabs button{background:none;border:0;border-bottom:3px solid transparent;padding:13px 15px;min-height:var(--tap);
+  cursor:pointer;color:var(--ink-3);font-weight:700;font-size:.9rem;white-space:nowrap}
+nav.tabs button[aria-current="page"]{color:var(--brand);border-bottom-color:var(--accent)}
+
+main{max-width:1180px;margin:0 auto;padding:20px 18px 80px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);margin-bottom:16px}
+.card-pad{padding:18px}
+.card h2{font-size:1.15rem;margin-bottom:4px}
+.card h3{font-size:1rem}
+.sub{color:var(--ink-3);font-size:.86rem}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.row>*{flex:1 1 200px}
+.row .narrow{flex:0 1 130px}
+label.fld{display:block;margin-bottom:13px}
+label.fld>span{display:block;font-size:.8rem;font-weight:700;color:var(--ink-2);margin-bottom:4px}
+label.fld .hint{font-weight:400;color:var(--ink-3)}
+input[type=text],input[type=email],input[type=password],input[type=number],input[type=search],
+input[type=datetime-local],textarea,select{
+  width:100%;min-height:var(--tap);padding:10px 12px;background:var(--surface);
+  border:1.5px solid var(--line-2);border-radius:var(--r-sm);font-size:.95rem}
+textarea{min-height:130px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.85rem;line-height:1.45}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:var(--tap);
+  padding:10px 16px;border-radius:var(--r-sm);border:1px solid transparent;background:var(--surface-2);
+  color:var(--ink);font-weight:600;cursor:pointer;text-decoration:none;font-size:.92rem}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.btn--primary{background:var(--brand);color:var(--on-brand);border-color:var(--brand)}
+.btn--accent{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn--ghost{background:transparent;border-color:var(--line-2);color:var(--ink-2)}
+.btn--danger{background:var(--danger-soft);color:var(--danger);border-color:var(--danger)}
+.btn--sm{min-height:34px;padding:5px 11px;font-size:.82rem}
+.btn--block{display:flex;width:100%}
+.note{border-radius:var(--r-sm);padding:11px 14px;font-size:.88rem;border:1px solid transparent;margin-bottom:14px}
+.note--ok{background:var(--ok-soft);color:var(--ok);border-color:var(--ok)}
+.note--warn{background:var(--warn-soft);color:var(--warn-ink);border-color:var(--line-2)}
+.note--bad{background:var(--danger-soft);color:var(--danger);border-color:var(--danger)}
+.note--quiet{background:var(--surface-2);color:var(--ink-2);border-color:var(--line)}
+.note--demo{background:var(--accent);color:#fff;border-radius:0;margin:0;font-weight:700;text-align:center;padding:9px}
+table{width:100%;border-collapse:collapse;font-size:.88rem}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3);font-weight:800;white-space:nowrap}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+tr.mismatch td{background:var(--danger-soft)}
+.pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:.7rem;font-weight:800;
+  text-transform:uppercase;letter-spacing:.05em;background:var(--surface-2);color:var(--ink-2)}
+.pill--ok{background:var(--ok-soft);color:var(--ok)}
+.pill--bad{background:var(--danger-soft);color:var(--danger)}
+.pill--seal{background:var(--slate-soft);color:var(--slate)}
+.pill--live{background:var(--accent-soft);color:var(--accent-ink)}
+.itemrow{display:grid;grid-template-columns:76px 1fr auto;gap:14px;align-items:start;
+  padding:14px 0;border-bottom:1px solid var(--line)}
+.itemrow:last-child{border-bottom:0}
+.itemrow img,.itemrow .ph{width:76px;height:76px;object-fit:cover;border-radius:var(--r-sm);
+  background:var(--surface-3);display:block}
+.itemrow .acts{display:flex;flex-direction:column;gap:6px}
+.big{font-family:var(--ff-display);font-size:2rem;font-weight:700;font-variant-numeric:tabular-nums;color:var(--brand)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px}
+.kpi .k{font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;font-weight:800;color:var(--ink-3)}
+.kpi .v{font-family:var(--ff-display);font-size:1.7rem;font-weight:700;font-variant-numeric:tabular-nums;margin-top:2px}
+details.hist{margin-top:8px}
+details.hist summary{cursor:pointer;font-size:.82rem;font-weight:700;color:var(--brand);
+  min-height:32px;display:flex;align-items:center}
+.muted{color:var(--ink-3)}
+.small{font-size:.82rem}
+.hide{display:none!important}
+.qrbox{display:inline-block;padding:20px;background:#fff;border-radius:var(--r);border:1px solid var(--line)}
+.qrbox img,.qrbox canvas{display:block}
+.sign{text-align:center;padding:30px 20px;border:2px dashed var(--line-2);border-radius:var(--r);background:var(--surface)}
+.sign h2{font-size:2rem;margin-bottom:6px}
+.sign .url{font-family:ui-monospace,Menlo,monospace;font-size:1rem;margin-top:14px;word-break:break-all;color:var(--ink-2)}
+.gate{max-width:420px;margin:60px auto}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.spin{display:inline-block;width:13px;height:13px;border-radius:50%;border:2px solid currentColor;
+  border-right-color:transparent;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media print{
+  body{background:#fff;color:#000;font-size:11pt}
+  header.bar,nav.tabs,.noprint,.btn,.note--demo{display:none!important}
+  main{max-width:none;padding:0}
+  .card{box-shadow:none;border:0;margin:0 0 10pt}
+  .card-pad{padding:0}
+  table{font-size:10pt}
+  th,td{border-bottom:1px solid #999;padding:5pt 6pt}
+  .sign{border:2px solid #000;page-break-inside:avoid}
+  .qrbox{border:0;padding:0}
+  a[href]::after{content:""}
+}
+</style>
+</head>
+<body>
+<div id="demoBar"></div>
+<header class="bar">
+  <div class="bar-in">
+    <div>
+      <div class="eyebrow">Transformative Justice Community</div>
+      <h1 id="hdrTitle">Auction Admin</h1>
+    </div>
+    <div class="right" id="hdrRight"></div>
+  </div>
+</header>
+<nav class="tabs" id="tabsNav" hidden>
+  <div class="tabs-in">
+    <button type="button" data-tab="items" aria-current="page">Items</button>
+    <button type="button" data-tab="import">Bulk import</button>
+    <button type="button" data-tab="board">Live bid board</button>
+    <button type="button" data-tab="winners">Winners</button>
+    <button type="button" data-tab="controls">Controls</button>
+    <button type="button" data-tab="qr">QR code</button>
+  </div>
+</nav>
+<main id="main"></main>
+<div id="live" class="sr" role="status" aria-live="polite"></div>
+<script src="app-config.js"></script>
+<script>
+/* ===========================================================================
+   Admin console.
+   Everything here needs an admin email that is listed in firestore.rules.
+   The rules are the real lock; this page is only the steering wheel.
+   =========================================================================== */
+(function () {
+'use strict';
+
+var CFG = window.AUCTION_CONFIG || {};
+var DEMO = !!CFG.demoMode;
+var PHOTO = CFG.photo || {};
+var ADMINS = (CFG.adminEmails || []).map(function(e){ return String(e).toLowerCase().trim(); });
+
+function $(id){ return document.getElementById(id); }
+function esc(v){ return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;')
+  .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+function num(v){ var n=parseFloat(String(v).replace(/[^0-9.\-]/g,'')); return isFinite(n)?n:0; }
+function money(n){ n=Math.round(num(n)*100)/100;
+  return '$'+n.toLocaleString('en-US',{minimumFractionDigits:(Math.abs(n%1)<0.005?0:2),maximumFractionDigits:2}); }
+function uuid(){ try{ if(window.crypto&&crypto.randomUUID) return crypto.randomUUID(); }catch(e){}
+  return 'x-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,11); }
+function tsToMs(v){ if(v==null) return 0; if(typeof v==='number') return v;
+  if(typeof v.toMillis==='function'){ try{return v.toMillis();}catch(e){return 0;} }
+  if(v.seconds) return v.seconds*1000; var t=Date.parse(v); return isFinite(t)?t:0; }
+function when(ms){ if(!ms) return ''; var d=new Date(ms);
+  return d.toLocaleDateString([], {month:'short',day:'numeric'})+' '+d.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'}); }
+var LS={ get:function(k,d){try{var v=localStorage.getItem(k);return v==null?d:JSON.parse(v);}catch(e){return d;}},
+         set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true;}catch(e){return false;}} };
+function say(m){ var n=$('live'); if(n) n.textContent=m; }
+
+/* ============================== BACKENDS ================================ */
+var DEMO_FULL = 'This browser\'s demo storage is full. Demo mode keeps everything inside the browser, ' +
+  'which holds about 5 MB. Delete some items or remove some photos.';
+function DemoBackend(){
+  var K={items:'sa.demo.items',bids:'sa.demo.bids',cfg:'sa.demo.config',bidders:'sa.demo.bidders'};
+  var subs={items:[],bids:[],cfg:[],bidders:[]};
+  function fire(kind,val){ subs[kind].forEach(function(f){ f(val); }); }
+  function items(){ return LS.get(K.items,[])||[]; }
+  function bids(){ return LS.get(K.bids,[])||[]; }
+  try{ window.addEventListener('storage',function(e){
+    if(e.key===K.items) fire('items',items());
+    else if(e.key===K.bids) fire('bids',bids().map(mapBid));
+    else if(e.key===K.cfg) fire('cfg',LS.get(K.cfg,{}));
+    else if(e.key===K.bidders) fire('bidders',biddersArr());
+  }); }catch(e){}
+  function mapBid(b){ return {id:b.id,itemId:b.itemId,bidderUid:b.bidderUid,bidderName:b.bidderName,
+                              amount:num(b.amount),at:num(b.createdAtMs)}; }
+  function biddersArr(){ var o=LS.get(K.bidders,{})||{}; var out=[];
+    for(var k in o) if(Object.prototype.hasOwnProperty.call(o,k)){ var v=o[k]||{}; v.uid=k; out.push(v); } return out; }
+  return {
+    demo:true,
+    start:function(){
+      /* Seed only the event settings. The six sample items are seeded by
+         index.html, so opening either page first works. */
+      if (!LS.get(K.cfg, null)) LS.set(K.cfg, { name:(CFG.eventName||'Silent Auction')+' (Demo)',
+        biddingOpen:true, defaultRevealHighBid:true, closesAt:null, __exists:true });
+      return Promise.resolve({email:'demo@local', name:'Demo organiser'});
+    },
+    signIn:function(){ return Promise.resolve(); }, signOut:function(){ return Promise.resolve(); },
+    onItems:function(cb){ subs.items.push(cb); cb(items()); },
+    onBids:function(cb){ subs.bids.push(cb); cb(bids().map(mapBid)); },
+    onConfig:function(cb){ subs.cfg.push(cb); var c=LS.get(K.cfg,{})||{}; c.__exists=true; cb(c); },
+    onBidders:function(cb){ subs.bidders.push(cb); cb(biddersArr()); },
+    /* localStorage holds roughly 5 MB. A silent failed write would show the
+       photo on screen and lose it on reload, so a full store is an error. */
+    saveItem:function(id,data){ var all=items(); if(!id){ id='demo-'+uuid().slice(0,8); data.id=id; all.push(data); }
+      else { for(var i=0;i<all.length;i++) if(all[i].id===id){ data.id=id; all[i]=data; } }
+      if(!LS.set(K.items,all)) return Promise.reject(new Error(DEMO_FULL)); fire('items',all); return Promise.resolve(id); },
+    patchItem:function(id,patch){ var all=items(); for(var i=0;i<all.length;i++) if(all[i].id===id)
+      for(var k in patch) if(Object.prototype.hasOwnProperty.call(patch,k)) all[i][k]=patch[k];
+      if(!LS.set(K.items,all)) return Promise.reject(new Error(DEMO_FULL)); fire('items',all); return Promise.resolve(); },
+    deleteItem:function(id){ var all=items().filter(function(i){return i.id!==id;});
+      LS.set(K.items,all); fire('items',all); return Promise.resolve(); },
+    saveConfig:function(patch){ var c=LS.get(K.cfg,{})||{};
+      for(var k in patch) if(Object.prototype.hasOwnProperty.call(patch,k)) c[k]=patch[k];
+      LS.set(K.cfg,c); fire('cfg',c); return Promise.resolve(); }
+  };
+}
+
+function FireBackend(){
+  var db,auth;
+  function loadScript(src){ return new Promise(function(res,rej){ var s=document.createElement('script');
+    s.src=src; s.async=false; s.onload=function(){res();}; s.onerror=function(){rej(new Error('Could not download '+src));};
+    document.head.appendChild(s); }); }
+  return {
+    demo:false,
+    start:function(){
+      return loadScript(CFG.sdk.app)
+        .then(function(){return loadScript(CFG.sdk.auth);})
+        .then(function(){return loadScript(CFG.sdk.firestore);})
+        .then(function(){
+          firebase.initializeApp(CFG.firebase);
+          db=firebase.firestore(); auth=firebase.auth();
+          return new Promise(function(res){
+            auth.onAuthStateChanged(function(u){ res(u?{email:u.email,name:u.displayName||u.email}:null); });
+          });
+        });
+    },
+    onAuth:function(cb){ auth.onAuthStateChanged(function(u){ cb(u?{email:u.email,name:u.displayName||u.email}:null); }); },
+    signIn:function(email,pw){ return auth.signInWithEmailAndPassword(email,pw); },
+    signOut:function(){ return auth.signOut(); },
+    onItems:function(cb){ db.collection('items').onSnapshot(function(s){
+      var o=[]; s.forEach(function(d){ var v=d.data()||{}; v.id=d.id; o.push(v); }); cb(o); }, Admin.snapErr('items')); },
+    onBids:function(cb){ db.collection('bids').onSnapshot(function(s){
+      var o=[]; s.forEach(function(d){ var v=d.data()||{};
+        o.push({id:d.id,itemId:v.itemId,bidderUid:v.bidderUid,bidderName:v.bidderName,
+                amount:num(v.amount), at: tsToMs(v.createdAt)||num(v.createdAtMs)}); }); cb(o); }, Admin.snapErr('bids')); },
+    onConfig:function(cb){ db.collection('config').doc('event').onSnapshot(function(d){
+      var v = d.exists ? (d.data()||{}) : {}; v.__exists = !!d.exists; cb(v); }, Admin.snapErr('config')); },
+    onBidders:function(cb){ db.collection('bidders').onSnapshot(function(s){
+      var o=[]; s.forEach(function(d){ var v=d.data()||{}; v.uid=d.id; o.push(v); }); cb(o); }, Admin.snapErr('bidders')); },
+    saveItem:function(id,data){ if(id) return db.collection('items').doc(id).set(data).then(function(){return id;});
+      return db.collection('items').add(data).then(function(r){ return r.id; }); },
+    patchItem:function(id,patch){ return db.collection('items').doc(id).update(patch); },
+    deleteItem:function(id){ return db.collection('items').doc(id).delete(); },
+    saveConfig:function(patch){ return db.collection('config').doc('event').set(patch,{merge:true}); }
+  };
+}
+var BE = DEMO ? DemoBackend() : FireBackend();
+
+/* =============================== STATE ================================== */
+var S = {
+  user:null, booted:false, bootError:null, authError:null,
+  tab:'items', items:[], bids:[], bidders:[], config:{},
+  editing:null, formOpen:false, msg:null,
+  photoDraft:null, photoInfo:null,
+  importText:'', importRows:null, importError:null, importProblems:null, importHasPhoto:false,
+  /* photo-by-path: preview existence checks, in-flight progress, and the post-import summary */
+  importPhotoChecks:null, importCheckToken:0, importBusy:null, importSummary:null,
+  qrUrl: CFG.bidderUrl || '', qrDrawn:false, qrError:null
+};
+
+/* ============================ DERIVED DATA ============================== */
+function itemById(id){ for(var i=0;i<S.items.length;i++) if(S.items[i].id===id) return S.items[i]; return null; }
+function bidderByUid(uid){ for(var i=0;i<S.bidders.length;i++) if(S.bidders[i].uid===uid) return S.bidders[i]; return null; }
+function bidsFor(id){ return S.bids.filter(function(b){ return b.itemId===id; })
+  .sort(function(a,b){ return b.amount-a.amount || a.at-b.at; }); }
+/* The truth, computed from the bids themselves. Ties go to whoever bid first. */
+function truthFor(id){
+  var list = bidsFor(id);
+  return { count:list.length, high:list.length?list[0].amount:0, top:list.length?list[0]:null };
+}
+function sortedItems(){
+  return S.items.slice().sort(function(a,b){
+    return num(a.sortOrder)-num(b.sortOrder) || String(a.title||'').localeCompare(String(b.title||''));
+  });
+}
+function totalRaised(){ var t=0; sortedItems().forEach(function(i){ t += truthFor(i.id).high; }); return t; }
+
+/* ============================ PHOTO RESIZE ============================== */
+function shrinkPhoto(file, done){
+  var maxEdge = PHOTO.maxEdge || 1000, quality = PHOTO.quality || 0.72, warnKB = PHOTO.warnKB || 700;
+  var reader = new FileReader();
+  reader.onerror = function(){ done('Could not read that file.'); };
+  reader.onload = function(){
+    var img = new Image();
+    img.onerror = function(){ done('That file is not a picture this browser can open. Try a JPG or PNG.'); };
+    img.onload = function(){
+      var plans = [], edges = [maxEdge, 800, 640], qs = [quality, 0.62, 0.52, 0.42];
+      edges.forEach(function(e){ qs.forEach(function(q){ plans.push([e,q]); }); });
+      var best = null;
+      for (var i=0;i<plans.length;i++){
+        var e = plans[i][0], q = plans[i][1];
+        var w = img.width, h = img.height;
+        if (Math.max(w,h) > e){ var s = e/Math.max(w,h); w = Math.max(1,Math.round(w*s)); h = Math.max(1,Math.round(h*s)); }
+        var c = document.createElement('canvas'); c.width=w; c.height=h;
+        var cx = c.getContext('2d'); cx.fillStyle='#fff'; cx.fillRect(0,0,w,h); cx.drawImage(img,0,0,w,h);
+        var url;
+        try { url = c.toDataURL('image/jpeg', q); } catch(err){ done('This browser refused to shrink that picture.'); return; }
+        var kb = Math.round(url.length/1024);
+        if (!best) best = {url:url,kb:kb,w:w,h:h,q:q};
+        if (kb <= warnKB){ done(null, {url:url,kb:kb,w:w,h:h,q:q}); return; }
+        best = {url:url,kb:kb,w:w,h:h,q:q};
+      }
+      done('That picture is still ' + best.kb + ' KB after shrinking, and the limit is ' + warnKB +
+           ' KB. Please crop it or pick a smaller photo.', null);
+    };
+    img.src = reader.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+/* ============================ TABLE IMPORT ============================== */
+function csvSplit(line){
+  var out=[],cur='',q=false;
+  for(var i=0;i<line.length;i++){ var ch=line[i];
+    if(q){ if(ch==='"'){ if(line[i+1]==='"'){cur+='"';i++;} else q=false; } else cur+=ch; }
+    else { if(ch==='"') q=true; else if(ch===','){ out.push(cur); cur=''; } else cur+=ch; } }
+  out.push(cur); return out;
+}
+function normKey(k){ return String(k).toLowerCase().replace(/[^a-z0-9]/g,''); }
+var FIELD_ALIASES = {
+  title:'title', name:'title', item:'title', lot:'title',
+  description:'description', desc:'description', details:'description',
+  contents:'contents', includes:'contents', included:'contents', whatsincluded:'contents',
+  category:'category', cat:'category', type:'category',
+  fairmarketvalue:'fairMarketValue', fmv:'fairMarketValue', value:'fairMarketValue', retail:'fairMarketValue',
+  startingbid:'startingBid', starting:'startingBid', start:'startingBid',
+  openingbid:'startingBid', opening:'startingBid', minimum:'startingBid', min:'startingBid',
+  increment:'increment', inc:'increment', raiseby:'increment', step:'increment', bidincrement:'increment',
+  photo:'photo', image:'photo', picture:'photo', img:'photo', photopath:'photo', imagepath:'photo', photofile:'photo'
+};
+function parsePasted(text){
+  var raw = String(text||'').split(/\r?\n/);
+  var lines = []; raw.forEach(function(l){ if (l.trim().length) lines.push(l); });
+  if (!lines.length) return { error:'Nothing pasted yet.' };
+  var isMd = lines.some(function(l){ return /^\s*\|/.test(l); });
+  var grid = [];
+  if (isMd){
+    lines.forEach(function(l){
+      var t = l.trim();
+      if (!/\|/.test(t)) return;
+      if (/^\|?[\s:\-|]+\|?$/.test(t) && /-/.test(t)) return;   /* the |---|---| line */
+      var cells = t.replace(/^\s*\|/,'').replace(/\|\s*$/,'').split('|');
+      grid.push(cells.map(function(c){ return c.trim(); }));
+    });
+  } else {
+    lines.forEach(function(l){ grid.push(csvSplit(l).map(function(c){ return c.trim(); })); });
+  }
+  if (grid.length < 2) return { error:'That needs a header row and at least one item row.' };
+  var head = grid[0].map(function(h){ return FIELD_ALIASES[normKey(h)] || null; });
+  if (head.indexOf('title') < 0)
+    return { error:'No "title" column found. The header row needs at least: title, startingBid, increment.' };
+  var rows = [], problems = [];
+  for (var r=1; r<grid.length; r++){
+    /* row = the item's line number below the header, so a photo failure can
+       be reported as "Row 4". photo = optional file path, "" when absent. */
+    var o = { title:'', description:'', contents:[], category:'', fairMarketValue:null,
+              startingBid:0, increment:0, photo:'', row:r };
+    for (var c=0; c<grid[r].length && c<head.length; c++){
+      var f = head[c]; if (!f) continue;
+      var v = grid[r][c];
+      if (f === 'contents') o.contents = v ? v.split(';').map(function(x){return x.trim();}).filter(Boolean) : [];
+      else if (f === 'fairMarketValue') o.fairMarketValue = v ? num(v) : null;
+      else if (f === 'startingBid' || f === 'increment') o[f] = num(v);
+      else o[f] = v;
+    }
+    if (!o.title) continue;
+    if (!(o.startingBid > 0)){ o.startingBid = 25; problems.push(o.title + ': no starting bid, using $25'); }
+    if (!(o.increment > 0)){ o.increment = 10; problems.push(o.title + ': no increment, using $10'); }
+    rows.push(o);
+  }
+  if (!rows.length) return { error:'No rows with a title were found.' };
+  return { rows:rows, problems:problems, hasPhoto: head.indexOf('photo') >= 0 };
+}
+
+/* ========================= PHOTO BY FILE PATH =========================== */
+/* The bulk importer's optional "photo" column names a picture file that
+   sits next to this page, e.g. lot-photos/lot-01.jpg. At preview time the
+   path is only checked to exist. At import time it is fetched, shrunk by the
+   very same shrinkPhoto() the Items-tab picker uses (a fetched Blob reads
+   through FileReader exactly like a chosen File), and written onto the item.
+   A photo that fails never blocks its item or the rest of the import. */
+function photoUrl(path){
+  try { return new URL(String(path||'').trim(), document.baseURI).href; } catch(e){ return null; }
+}
+function httpWhy(status){
+  if (status === 404) return 'not found (404)';
+  if (status === 403) return 'the server refused to hand it over (403)';
+  return 'the server answered with an error (' + status + ')';
+}
+function fetchWhy(){
+  if (location.protocol === 'file:')
+    return 'cannot load pictures by path when this page is opened from a folder; put the site on a web address';
+  return 'could not be fetched (no connection, or the server refused)';
+}
+/* Run task functions at most `limit` at a time. Each task returns a promise.
+   A rejection becomes {error} in the results instead of stopping the rest. */
+function runPool(tasks, limit, onEach){
+  return new Promise(function(resolve){
+    var next = 0, active = 0, out = new Array(tasks.length);
+    function pump(){
+      if (next >= tasks.length && active === 0){ resolve(out); return; }
+      while (active < limit && next < tasks.length){
+        (function(k){
+          active++;
+          Promise.resolve().then(function(){ return tasks[k](); })
+            .then(function(v){ out[k] = v; }, function(e){ out[k] = { error: e }; })
+            .then(function(){ active--; if (onEach) onEach(k, out[k]); pump(); });
+        })(next++);
+      }
+    }
+    pump();
+  });
+}
+/* Preview: does the file exist? HEAD first; a host that will not answer a
+   HEAD gets a plain GET. Nothing is decoded or resized here. A 200 that is
+   really an HTML page (hosts that redirect every miss to index.html) counts
+   as missing, because it would fail to decode at import time anyway. */
+function probePhoto(url){
+  function judge(r){
+    try { if (r.body) r.body.cancel(); } catch(e){}   /* headers are enough; do not download the picture */
+    if (!r.ok) return { ok:false, why: httpWhy(r.status) };
+    if (/^text\/html/i.test(r.headers.get('content-type') || ''))
+      return { ok:false, why:'that address is a web page, not a picture' };
+    return { ok:true };
+  }
+  function viaGet(){ return fetch(url).then(judge); }
+  return fetch(url, { method:'HEAD' })
+    .then(function(r){ return (r.ok || r.status === 404) ? judge(r) : viaGet(); }, viaGet)
+    .catch(function(){ return { ok:false, why: fetchWhy() }; });
+}
+function checkImportPhotos(){
+  var token = ++S.importCheckToken;            /* a newer preview makes this one stale */
+  S.importPhotoChecks = {};
+  var paths = [];
+  (S.importRows || []).forEach(function(r){ if (r.photo && paths.indexOf(r.photo) < 0) paths.push(r.photo); });
+  if (!paths.length) return;
+  paths.forEach(function(p){ S.importPhotoChecks[p] = { state:'checking' }; });
+  runPool(paths.map(function(p){ return function(){
+    var url = photoUrl(p);
+    return url ? probePhoto(url) : Promise.resolve({ ok:false, why:'that is not a usable file path' });
+  }; }), 4, function(k, res){
+    if (token !== S.importCheckToken) return;
+    S.importPhotoChecks[paths[k]] = (!res || res.error)
+      ? { state:'missing', why:'unexpected problem while checking' }
+      : { state: res.ok ? 'found' : 'missing', why: res.why || '' };
+    render();
+  });
+}
+/* Import: fetch, shrink through shrinkPhoto(), write to the item. Never
+   rejects; always resolves {ok:true} or {ok:false, why:'plain words'}. */
+function attachPhotoByPath(itemId, path){
+  var url = photoUrl(path);
+  if (!url) return Promise.resolve({ ok:false, why:'that is not a usable file path' });
+  return fetch(url)
+    .then(function(r){ if (!r.ok) throw { why: httpWhy(r.status) }; return r.blob(); },
+          function(){ throw { why: fetchWhy() }; })
+    .then(function(blob){
+      return new Promise(function(res, rej){
+        shrinkPhoto(blob, function(err, out){ if (err) rej({ why: err }); else res(out.url); });
+      });
+    })
+    .then(function(dataUrl){
+      return BE.patchItem(itemId, { photo: dataUrl }).then(function(){ return { ok:true }; },
+        function(e){ throw { why: 'the picture was shrunk but could not be saved: ' + plainErr(e) }; });
+    })
+    .catch(function(e){
+      return { ok:false, why: (e && e.why) || ('unexpected problem: ' + ((e && e.message) || e)) };
+    });
+}
+
+/* ============================ CSV EXPORT ================================ */
+function csvCell(v){ v = String(v==null?'':v); return /[",\n]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v; }
+function csvOf(headers, rows){
+  return [headers.map(csvCell).join(',')]
+    .concat(rows.map(function(r){ return r.map(csvCell).join(','); })).join('\n');
+}
+function winnersCsv(){
+  return csvOf(['Item','Category','Winning bidder','Contact','Table','Winning bid','Total bids','Starting bid'],
+    sortedItems().map(function(i){
+      var t = truthFor(i.id), who = t.top ? bidderByUid(t.top.bidderUid) : null;
+      return [i.title, i.category||'', t.top?t.top.bidderName:'(no bids)',
+              who?(who.contact||''):'', who?(who.tableNumber||''):'',
+              t.high||'', t.count, i.startingBid];
+    }));
+}
+function allBidsCsv(){
+  return csvOf(['Item','Bidder','Contact','Table','Amount','Placed at','Bid id','Bidder id'],
+    S.bids.slice().sort(function(a,b){ return a.at-b.at; }).map(function(b){
+      var i = itemById(b.itemId), who = bidderByUid(b.bidderUid);
+      return [i?i.title:'(deleted item)', b.bidderName||'', who?(who.contact||''):'',
+              who?(who.tableNumber||''):'', b.amount, when(b.at), b.id, b.bidderUid];
+    }));
+}
+function downloadCsv(name, text){
+  try{
+    var blob = new Blob([text], {type:'text/csv;charset=utf-8'});
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = name;
+    document.body.appendChild(a); a.click();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+  }catch(e){ S.msg = {kind:'warn', text:'The download did not start. Copy the text from the box below instead.'}; render(); }
+}
+
+/* =============================== VIEWS ================================== */
+function isAdminUser(u){ return !!(u && u.email && ADMINS.indexOf(String(u.email).toLowerCase()) >= 0); }
+
+function viewGate(){
+  if (S.bootError)
+    return '<div class="gate"><div class="card"><div class="card-pad">' +
+      '<h2>Cannot reach the auction</h2><div class="note note--bad" style="margin-top:12px">' +
+      esc(S.bootError) + '</div><p class="small muted">Check this computer has internet, then reload the page. ' +
+      'If it keeps happening, the Firebase settings in app-config.js may be wrong.</p></div></div></div>';
+
+  if (S.user && !isAdminUser(S.user))
+    return '<div class="gate"><div class="card"><div class="card-pad">' +
+      '<h2>Not an organiser account</h2>' +
+      '<div class="note note--bad" style="margin-top:12px">You are signed in as <strong>' + esc(S.user.email) +
+      '</strong>, and that address is not on the organiser list.</div>' +
+      '<p class="small muted">The list lives in two places and both have to match: ' +
+      '<code>adminEmails</code> in app-config.js, and <code>adminEmails()</code> in firestore.rules. ' +
+      'Changing app-config.js alone will not work.</p>' +
+      '<button type="button" class="btn btn--ghost btn--block" data-act="signout">Sign out</button>' +
+      '</div></div></div>';
+
+  return '<div class="gate"><div class="card"><div class="card-pad">' +
+    '<h2>Organisers sign in</h2><p class="sub">Use the email and password you set up in Firebase.</p>' +
+    (S.authError ? '<div class="note note--bad" style="margin-top:14px">' + esc(S.authError) + '</div>' : '') +
+    '<form id="signinForm" style="margin-top:16px">' +
+      '<label class="fld"><span>Email</span><input type="email" id="aEmail" autocomplete="username" required></label>' +
+      '<label class="fld"><span>Password</span><input type="password" id="aPass" autocomplete="current-password" required></label>' +
+      '<button type="submit" class="btn btn--primary btn--block">Sign in</button>' +
+    '</form></div></div></div>';
+}
+
+function itemForm(){
+  var it = S.editing === 'new' ? null : itemById(S.editing);
+  var d = it || { title:'', description:'', contents:[], category:'', fairMarketValue:null,
+                  startingBid:25, increment:10, sortOrder:(S.items.length+1),
+                  closed:false, revealHighBid:(S.config.defaultRevealHighBid !== false) };
+  var photo = S.photoDraft != null ? S.photoDraft : (d.photo || '');
+  return '<div class="card"><div class="card-pad"><h2>' + (it ? 'Edit item' : 'New item') + '</h2>' +
+    '<form id="itemForm" style="margin-top:14px">' +
+      '<label class="fld"><span>Title</span><input type="text" id="fTitle" required value="' + esc(d.title) + '"></label>' +
+      '<div class="row">' +
+        '<label class="fld"><span>Category</span><input type="text" id="fCat" placeholder="Getaways, Art, Food &amp; Drink&hellip;" value="' + esc(d.category) + '"></label>' +
+        '<label class="fld narrow"><span>Order</span><input type="number" id="fOrder" value="' + esc(num(d.sortOrder)) + '"></label>' +
+      '</div>' +
+      '<label class="fld"><span>Description</span><textarea id="fDesc" style="min-height:96px;font-family:var(--ff-ui);font-size:.95rem">' + esc(d.description) + '</textarea></label>' +
+      '<label class="fld"><span>What is included <span class="hint">one line each &mdash; leave empty if it is not a package</span></span>' +
+        '<textarea id="fContents" style="min-height:86px">' + esc((d.contents||[]).join('\n')) + '</textarea></label>' +
+      '<div class="row">' +
+        '<label class="fld narrow"><span>Starting bid</span><input type="number" id="fStart" min="1" step="1" value="' + esc(num(d.startingBid)) + '"></label>' +
+        '<label class="fld narrow"><span>Raise by</span><input type="number" id="fInc" min="1" step="1" value="' + esc(num(d.increment)) + '"></label>' +
+        '<label class="fld narrow"><span>Fair market value <span class="hint">optional</span></span>' +
+          '<input type="number" id="fFmv" min="0" step="1" value="' + (d.fairMarketValue!=null?esc(num(d.fairMarketValue)):'') + '"></label>' +
+      '</div>' +
+      '<label class="fld"><span>Photo</span><input type="file" id="fPhoto" accept="image/*"></label>' +
+      (S.photoInfo ? '<div class="note note--' + (S.photoInfo.bad?'bad':'ok') + '">' + esc(S.photoInfo.text) + '</div>' : '') +
+      (photo ? '<div style="margin-bottom:14px"><img src="' + esc(photo) + '" alt="" style="max-width:220px;border-radius:10px;border:1px solid var(--line)">' +
+               '<div><button type="button" class="btn btn--ghost btn--sm" style="margin-top:8px" data-act="dropphoto">Remove photo</button></div></div>' : '') +
+      '<label style="display:flex;gap:9px;align-items:center;margin-bottom:10px;min-height:40px">' +
+        '<input type="checkbox" id="fReveal" style="width:20px;height:20px;min-height:0"' + (d.revealHighBid!==false?' checked':'') + '>' +
+        '<span><strong>Show the current bid to everyone</strong> &mdash; untick to seal this lot so nobody sees any amount</span></label>' +
+      '<label style="display:flex;gap:9px;align-items:center;margin-bottom:16px;min-height:40px">' +
+        '<input type="checkbox" id="fClosed" style="width:20px;height:20px;min-height:0"' + (d.closed===true?' checked':'') + '>' +
+        '<span>Bidding closed on this item</span></label>' +
+      '<div class="row"><button type="submit" class="btn btn--primary">Save item</button>' +
+        '<button type="button" class="btn btn--ghost" data-act="canceledit">Cancel</button></div>' +
+    '</form></div></div>';
+}
+
+function viewItems(){
+  if (S.formOpen) return itemForm();
+  var list = sortedItems();
+  var h = '<div class="row" style="margin-bottom:16px"><div><h2 style="font-size:1.3rem">Items</h2>' +
+          '<p class="sub">' + list.length + ' in the auction</p></div>' +
+          '<div style="flex:0 0 auto"><button type="button" class="btn btn--primary" data-act="newitem">+ New item</button></div></div>';
+  if (!list.length) return h + '<div class="card"><div class="card-pad"><p class="muted">' +
+    'No items yet. Add them one at a time, or paste the whole list under <strong>Bulk import</strong>.</p>' +
+    (DEMO ? '<div class="note note--quiet" style="margin-top:12px">In demo mode the six pretend items are ' +
+            'created by <strong>index.html</strong>. Open that page once, then come back here.</div>' : '') +
+    '</div></div>';
+  h += '<div class="card"><div class="card-pad">';
+  h += list.map(function(i, idx){
+    var t = truthFor(i.id);
+    return '<div class="itemrow">' +
+      (i.photo ? '<img src="' + esc(i.photo) + '" alt="">' : '<div class="ph"></div>') +
+      '<div><strong>' + esc(i.title) + '</strong>' +
+        '<div class="small muted" style="margin-top:3px">' +
+          (i.category ? esc(i.category) + ' &middot; ' : '') +
+          'opens at ' + money(i.startingBid) + ' &middot; raise by ' + money(i.increment) +
+          (i.fairMarketValue ? ' &middot; value ' + money(i.fairMarketValue) : '') + '</div>' +
+        '<div style="margin-top:7px;display:flex;gap:6px;flex-wrap:wrap">' +
+          (i.revealHighBid !== false ? '<span class="pill pill--live">bid shown</span>' : '<span class="pill pill--seal">sealed</span>') +
+          (i.closed === true ? '<span class="pill pill--bad">closed</span>' : '<span class="pill pill--ok">open</span>') +
+          '<span class="pill">' + t.count + (t.count===1?' bid':' bids') + '</span>' +
+          (t.high ? '<span class="pill">high ' + money(t.high) + '</span>' : '') +
+        '</div></div>' +
+      '<div class="acts">' +
+        '<button type="button" class="btn btn--sm btn--ghost" data-act="edit" data-id="' + esc(i.id) + '">Edit</button>' +
+        '<button type="button" class="btn btn--sm btn--ghost" data-act="up" data-id="' + esc(i.id) + '"' + (idx===0?' disabled':'') + '>&#9650; Up</button>' +
+        '<button type="button" class="btn btn--sm btn--ghost" data-act="down" data-id="' + esc(i.id) + '"' + (idx===list.length-1?' disabled':'') + '>&#9660; Down</button>' +
+        '<button type="button" class="btn btn--sm btn--danger" data-act="del" data-id="' + esc(i.id) + '">Delete</button>' +
+      '</div></div>';
+  }).join('');
+  return h + '</div></div>';
+}
+
+function viewImport(){
+  var h = '<div class="card"><div class="card-pad"><h2>Bulk import</h2>' +
+    '<p class="sub">Paste a markdown table or a CSV. The header row needs these names ' +
+    '(extra columns are ignored):</p>' +
+    '<p class="small" style="margin-top:8px"><code>title, description, contents, category, fairMarketValue, startingBid, increment, photo</code></p>' +
+    '<p class="small muted"><strong>contents</strong> is the list of things inside a package, separated by semicolons. ' +
+    '<strong>photo</strong> is optional: the path of a picture file that sits next to this page, such as ' +
+    '<code>lot-photos/lot-01.jpg</code>. It is shrunk exactly as a photo chosen on the Items tab would be. ' +
+    'Leave the column out, or leave it blank, and add photos afterwards one item at a time on the Items tab.</p>' +
+    '<label class="fld" style="margin-top:14px"><span>Paste here</span>' +
+    '<textarea id="impText" placeholder="| title | description | contents | category | fairMarketValue | startingBid | increment | photo |">' + esc(S.importText) + '</textarea></label>' +
+    '<div class="row"><button type="button" class="btn btn--ghost" data-act="preview"' + (S.importBusy?' disabled':'') + '>Check what I pasted</button>' +
+    '<button type="button" class="btn btn--ghost" data-act="sampletable"' + (S.importBusy?' disabled':'') + '>Put an example in the box</button></div>';
+  if (S.importError) h += '<div class="note note--bad" style="margin-top:14px">' + esc(S.importError) + '</div>';
+  if (S.importSummary){
+    var sm = S.importSummary;
+    h += '<div class="note note--' + (sm.fails.length ? 'warn' : 'ok') + '" style="margin-top:14px" id="impSummary">' +
+      '<strong>' + sm.created + ' item' + (sm.created===1?'':'s') + ' created.</strong> ' +
+      sm.photosOk + ' of ' + sm.photosTried + ' photo' + (sm.photosTried===1?'':'s') + ' attached.' +
+      (sm.fails.length
+        ? '<br>These items were created <strong>without</strong> a photo. Add each one by hand on the Items tab (Edit &rarr; Photo):' +
+          '<ul style="margin:6px 0 0;padding-left:18px">' + sm.fails.map(function(f){
+            return '<li>Row ' + f.row + ' (' + esc(f.title) + '): <code>' + esc(f.path) + '</code> &mdash; ' + esc(f.why) + '</li>';
+          }).join('') + '</ul>'
+        : '') +
+      '</div><button type="button" class="btn btn--ghost" data-act="gotoitems">Go to the Items tab</button>';
+  }
+  if (S.importRows && S.importRows.length){
+    var showPhoto = S.importHasPhoto || S.importRows.some(function(r){ return !!r.photo; });
+    h += '<h3 style="margin-top:20px">' + S.importRows.length + ' item' + (S.importRows.length===1?'':'s') + ' found</h3>';
+    if (S.importProblems && S.importProblems.length)
+      h += '<div class="note note--warn" style="margin-top:10px">' +
+           S.importProblems.map(esc).join('<br>') + '</div>';
+    h += '<div style="overflow-x:auto;margin-top:10px"><table><thead><tr><th>Title</th><th>Category</th>' +
+         '<th class="num">Opens at</th><th class="num">Raise by</th><th class="num">Value</th><th>Included</th>' +
+         (showPhoto ? '<th>Photo</th>' : '') + '</tr></thead><tbody>' +
+      S.importRows.map(function(r){ return '<tr><td><strong>' + esc(r.title) + '</strong>' +
+        (r.description ? '<div class="small muted">' + esc(r.description.slice(0,110)) + '</div>' : '') + '</td>' +
+        '<td>' + esc(r.category) + '</td><td class="num">' + money(r.startingBid) + '</td>' +
+        '<td class="num">' + money(r.increment) + '</td>' +
+        '<td class="num">' + (r.fairMarketValue!=null?money(r.fairMarketValue):'&mdash;') + '</td>' +
+        '<td class="small">' + (r.contents.length ? esc(r.contents.join('; ')) : '&mdash;') + '</td>' +
+        (showPhoto ? '<td class="small" data-photo-row="' + esc(r.row) + '">' + importPhotoCell(r) + '</td>' : '') + '</tr>'; }).join('') +
+      '</tbody></table></div>';
+    if (S.importBusy){
+      var b = S.importBusy;
+      h += '<div class="note note--quiet" style="margin-top:16px" id="impBusy"><span class="spin"></span> ' +
+        (b.phase === 'items' ? 'Creating the items&hellip;'
+          : 'Attaching photos&hellip; ' + b.done + ' of ' + b.total + ' done. Keep this page open.') + '</div>';
+    }
+    h += '<button type="button" class="btn btn--accent" style="margin-top:16px" data-act="doimport"' + (S.importBusy?' disabled':'') + '>' +
+      'Create these ' + S.importRows.length + ' items</button>';
+  }
+  return h + '</div></div>';
+}
+function importPhotoCell(r){
+  if (!r.photo) return '<span class="muted">&mdash;</span>';
+  var c = (S.importPhotoChecks || {})[r.photo] || { state:'checking' };
+  var name = r.photo.replace(/\/+$/,'').split('/').pop();
+  return '<div title="' + esc(r.photo) + '">' + esc(name) + '</div>' +
+    (c.state === 'found'   ? '<span class="pill pill--ok" data-photo-state="found">&#10003; found</span>'
+   : c.state === 'missing' ? '<span class="pill pill--bad" data-photo-state="missing">&#10007; not found</span>' +
+                             (c.why ? '<div class="muted">' + esc(c.why) + '</div>' : '')
+   :                         '<span class="pill" data-photo-state="checking">checking&hellip;</span>');
+}
+
+function viewBoard(){
+  var items = sortedItems();
+  var h = '<div class="kpis">' +
+    '<div class="kpi"><div class="k">Items</div><div class="v">' + items.length + '</div></div>' +
+    '<div class="kpi"><div class="k">Bids placed</div><div class="v">' + S.bids.length + '</div></div>' +
+    '<div class="kpi"><div class="k">Bidders</div><div class="v">' + S.bidders.length + '</div></div>' +
+    '<div class="kpi"><div class="k">Raised so far</div><div class="v">' + money(totalRaised()) + '</div></div>' +
+    '</div>';
+  h += '<div class="card"><div class="card-pad">' +
+    '<h2>Live bid board</h2><p class="sub">Updates by itself. ' +
+    '<strong>Shown</strong> is the number on the guests&rsquo; phones. <strong>True</strong> is worked out from the ' +
+    'bids themselves, which only organisers can read. A red row means they disagree &mdash; ' +
+    'trust the <strong>True</strong> column and press <em>Fix the shown numbers</em> on the Controls tab.</p>';
+  if (!items.length) return h + '<p class="muted" style="margin-top:14px">No items yet.</p></div></div>';
+  h += '<div style="overflow-x:auto;margin-top:14px"><table><thead><tr>' +
+    '<th>Item</th><th class="num">Shown bid</th><th class="num">True high</th>' +
+    '<th class="num">Shown count</th><th class="num">True count</th><th>Leading bidder</th></tr></thead><tbody>';
+  items.forEach(function(i){
+    var t = truthFor(i.id);
+    var sealed = i.revealHighBid === false;
+    var bad = !sealed && (num(i.highBid) !== t.high || num(i.bidCount) !== t.count);
+    h += '<tr class="' + (bad ? 'mismatch' : '') + '">' +
+      '<td><strong>' + esc(i.title) + '</strong>' +
+        (sealed ? ' <span class="pill pill--seal">sealed</span>' : '') +
+        (i.closed === true ? ' <span class="pill pill--bad">closed</span>' : '') +
+        (bad ? ' <span class="pill pill--bad">mismatch</span>' : '') +
+        '<details class="hist"><summary>' + t.count + ' bid' + (t.count===1?'':'s') + ' &mdash; show all</summary>' +
+        (t.count ? '<table style="margin-top:6px"><thead><tr><th>Bidder</th><th class="num">Amount</th><th>Placed</th></tr></thead><tbody>' +
+          bidsFor(i.id).map(function(b){ var who = bidderByUid(b.bidderUid);
+            return '<tr><td>' + esc(b.bidderName||'(no name)') +
+                   (who && who.tableNumber ? ' <span class="pill">table ' + esc(who.tableNumber) + '</span>' : '') +
+                   (who && who.contact ? '<div class="small muted">' + esc(who.contact) + '</div>' : '') +
+                   '</td><td class="num">' + money(b.amount) + '</td><td class="small">' + esc(when(b.at)) + '</td></tr>';
+          }).join('') + '</tbody></table>'
+          : '<p class="small muted" style="margin-top:6px">Nobody has bid on this yet.</p>') +
+        '</details></td>' +
+      '<td class="num">' + (sealed ? '&mdash;' : (num(i.highBid) ? money(i.highBid) : '&mdash;')) + '</td>' +
+      '<td class="num"><strong>' + (t.high ? money(t.high) : '&mdash;') + '</strong></td>' +
+      '<td class="num">' + (sealed ? '&mdash;' : num(i.bidCount)) + '</td>' +
+      '<td class="num"><strong>' + t.count + '</strong></td>' +
+      '<td>' + (t.top ? esc(t.top.bidderName||'(no name)') : '<span class="muted">&mdash;</span>') + '</td></tr>';
+  });
+  return h + '</tbody></table></div></div></div>';
+}
+
+function viewWinners(){
+  var items = sortedItems();
+  var h = '<div class="row noprint" style="margin-bottom:14px"><div><h2 style="font-size:1.3rem">Winners</h2>' +
+    '<p class="sub">Ties go to whoever placed the bid first.</p></div>' +
+    '<div style="flex:0 0 auto;display:flex;gap:8px;flex-wrap:wrap">' +
+    '<button type="button" class="btn btn--ghost" data-act="print">Print this page</button>' +
+    '<button type="button" class="btn btn--ghost" data-act="dlwinners">Download winners CSV</button>' +
+    '<button type="button" class="btn btn--ghost" data-act="dlbids">Download all bids CSV</button></div></div>';
+  h += '<div class="card"><div class="card-pad">' +
+    '<h2 style="font-size:1.4rem">' + esc(S.config.name || CFG.eventName || 'Silent Auction') + ' &mdash; Winners</h2>' +
+    '<p class="sub">' + new Date().toLocaleString() + '</p>' +
+    '<div style="overflow-x:auto;margin-top:14px"><table><thead><tr><th>Item</th><th>Winner</th>' +
+    '<th>Contact</th><th>Table</th><th class="num">Amount</th></tr></thead><tbody>';
+  items.forEach(function(i){
+    var t = truthFor(i.id), who = t.top ? bidderByUid(t.top.bidderUid) : null;
+    h += '<tr><td><strong>' + esc(i.title) + '</strong>' +
+      (i.category ? '<div class="small muted">' + esc(i.category) + '</div>' : '') + '</td>' +
+      '<td>' + (t.top ? esc(t.top.bidderName || '(no name)') : '<span class="muted">No bids</span>') + '</td>' +
+      '<td class="small">' + esc(who ? (who.contact||'') : '') + '</td>' +
+      '<td class="small">' + esc(who ? (who.tableNumber||'') : '') + '</td>' +
+      '<td class="num"><strong>' + (t.high ? money(t.high) : '&mdash;') + '</strong></td></tr>';
+  });
+  h += '</tbody><tfoot><tr><th colspan="4" style="text-align:right;font-size:.95rem">Total raised</th>' +
+       '<td class="num"><span class="big">' + money(totalRaised()) + '</span></td></tr></tfoot></table></div>';
+  h += '</div></div>';
+  h += '<div class="card noprint"><div class="card-pad"><h3>Copy the numbers by hand if the download is blocked</h3>' +
+    '<label class="fld" style="margin-top:10px"><span>Winners</span><textarea readonly rows="6">' + esc(winnersCsv()) + '</textarea></label>' +
+    '<label class="fld"><span>Every bid</span><textarea readonly rows="6">' + esc(allBidsCsv()) + '</textarea></label></div></div>';
+  return h;
+}
+
+function viewControls(){
+  var open = S.config.biddingOpen !== false;
+  var closes = tsToMs(S.config.closesAt);
+  var localVal = '';
+  if (closes){ var d = new Date(closes - d0off(closes)); localVal = d.toISOString().slice(0,16); }
+  var h = '<div class="card"><div class="card-pad"><h2>Bidding</h2>' +
+    '<div class="note note--' + (open ? 'ok' : 'bad') + '" style="margin-top:12px">' +
+    (open ? 'Bidding is <strong>OPEN</strong>. Guests can place bids right now.'
+          : 'Bidding is <strong>CLOSED</strong>. No new bids will be accepted on any item.') + '</div>' +
+    '<button type="button" class="btn ' + (open ? 'btn--danger' : 'btn--primary') + '" data-act="togglebidding">' +
+    (open ? 'Close bidding for everything' : 'Open bidding') + '</button></div></div>';
+
+  h += '<div class="card"><div class="card-pad"><h2>Event</h2>' +
+    '<form id="cfgForm" style="margin-top:12px">' +
+    '<label class="fld"><span>Event name</span><input type="text" id="cName" value="' +
+      esc(S.config.name || CFG.eventName || '') + '"></label>' +
+    '<label class="fld"><span>Bidding closes at <span class="hint">shown to guests &mdash; optional</span></span>' +
+      '<input type="datetime-local" id="cCloses" value="' + esc(localVal) + '"></label>' +
+    '<label style="display:flex;gap:9px;align-items:center;margin-bottom:14px;min-height:40px">' +
+      '<input type="checkbox" id="cReveal" style="width:20px;height:20px;min-height:0"' +
+      (S.config.defaultRevealHighBid !== false ? ' checked' : '') + '>' +
+      '<span><strong>New items show the current bid by default</strong></span></label>' +
+    '<button type="submit" class="btn btn--primary">Save event settings</button></form></div></div>';
+
+  h += '<div class="card"><div class="card-pad"><h2>Fix the shown numbers</h2>' +
+    '<p class="sub">Guests&rsquo; phones write the current bid onto each item. If one of those writes did not ' +
+    'arrive, the number on the phones falls behind the real bids. This rewrites every item&rsquo;s shown ' +
+    'bid and count from the real bid list. It is always safe to press.</p>' +
+    '<button type="button" class="btn btn--accent" style="margin-top:12px" data-act="recompute">' +
+    'Fix the shown numbers now</button></div></div>';
+
+  var items = sortedItems();
+  h += '<div class="card"><div class="card-pad"><h2>One item at a time</h2>' +
+    '<div style="overflow-x:auto;margin-top:12px"><table><thead><tr><th>Item</th><th>Current bid shown?</th>' +
+    '<th>Open?</th></tr></thead><tbody>' +
+    items.map(function(i){ return '<tr><td><strong>' + esc(i.title) + '</strong></td>' +
+      '<td><button type="button" class="btn btn--sm ' + (i.revealHighBid!==false?'btn--ghost':'btn--primary') +
+        '" data-act="toggreveal" data-id="' + esc(i.id) + '">' +
+        (i.revealHighBid!==false ? 'Shown &mdash; seal it' : 'Sealed &mdash; show it') + '</button></td>' +
+      '<td><button type="button" class="btn btn--sm ' + (i.closed===true?'btn--primary':'btn--ghost') +
+        '" data-act="toggclosed" data-id="' + esc(i.id) + '">' +
+        (i.closed===true ? 'Closed &mdash; reopen' : 'Open &mdash; close it') + '</button></td></tr>'; }).join('') +
+    '</tbody></table></div></div></div>';
+  return h;
+}
+function d0off(ms){ return new Date(ms).getTimezoneOffset() * 60000; }
+
+function viewQr(){
+  var url = S.qrUrl || '';
+  var h = '<div class="card noprint"><div class="card-pad"><h2>QR code for the bidding page</h2>' +
+    '<p class="sub">Type the web address guests will scan, then print this page and put it on every table.</p>' +
+    '<label class="fld" style="margin-top:12px"><span>Bidding page address</span>' +
+    '<input type="text" id="qUrl" placeholder="https://your-auction.netlify.app" value="' + esc(url) + '"></label>' +
+    '<div class="row"><button type="button" class="btn btn--primary" data-act="makeqr">Make the QR code</button>' +
+    '<button type="button" class="btn btn--ghost" data-act="print">Print the sign</button></div>';
+  if (S.qrError) h += '<div class="note note--warn" style="margin-top:14px">' + esc(S.qrError) + '</div>';
+  h += '</div></div>';
+  h += '<div class="sign"><div class="eyebrow small muted" style="letter-spacing:.14em;text-transform:uppercase">' +
+    'Transformative Justice Community</div>' +
+    '<h2 style="margin-top:6px">' + esc(S.config.name || CFG.eventName || 'Silent Auction') + '</h2>' +
+    '<p style="font-size:1.25rem;margin:4px 0 18px"><strong>Scan to bid</strong></p>' +
+    '<div class="qrbox" id="qrTarget"></div>' +
+    (url ? '<div class="url">' + esc(url) + '</div>' : '<div class="url muted">Type the address above first</div>') +
+    '<p class="small muted" style="margin-top:16px">Point your phone camera at the square. ' +
+    'Your bids stay private &mdash; only the organisers can see your name.</p></div>';
+  return h;
+}
+
+/* ================================ QR ==================================== */
+var qrLoading = false;
+function drawQr(){
+  var t = $('qrTarget'); if (!t) return;
+  if (!S.qrUrl){ t.innerHTML = ''; return; }
+  function paint(){
+    var n = $('qrTarget'); if (!n) return;
+    n.innerHTML = '';
+    try { new QRCode(n, { text:S.qrUrl, width:260, height:260, correctLevel: QRCode.CorrectLevel.M });
+          if (S.qrError){ S.qrError = null; render(); } }
+    catch(e){ setQrError('Could not draw the QR code (' + e.message + ').'); }
+  }
+  if (window.QRCode) { paint(); return; }
+  if (qrLoading) return;
+  qrLoading = true;
+  var s = document.createElement('script');
+  s.src = CFG.qrLib;
+  s.onload  = function(){ qrLoading = false; paint(); };
+  s.onerror = function(){ qrLoading = false;
+    setQrError('Could not download the QR drawing tool, so the square below is empty. ' +
+      'This computer may be offline. You can still print the sign with the web address on it, ' +
+      'or paste the address into any free QR code website.'); };
+  document.head.appendChild(s);
+}
+function setQrError(msg){ if (S.qrError === msg) return; S.qrError = msg; render(); }
+
+/* ============================== ACTIONS ================================= */
+function flash(kind, text){ S.msg = {kind:kind, text:text}; render();
+  setTimeout(function(){ if (S.msg && S.msg.text === text){ S.msg = null; render(); } }, 6000); }
+
+function saveItemFromForm(ev){
+  ev.preventDefault();
+  var id = S.editing === 'new' ? null : S.editing;
+  var existing = id ? itemById(id) : null;
+  var title = ($('fTitle').value || '').trim();
+  if (!title){ flash('bad','Give the item a title.'); return; }
+  var contents = ($('fContents').value || '').split('\n')
+    .map(function(s){ return s.trim(); }).filter(Boolean);
+  var fmvRaw = ($('fFmv').value || '').trim();
+  var photo = S.photoDraft != null ? S.photoDraft : (existing ? (existing.photo || '') : '');
+  var data = {
+    title: title,
+    description: ($('fDesc').value || '').trim(),
+    contents: contents,
+    category: ($('fCat').value || '').trim(),
+    photo: photo,
+    fairMarketValue: fmvRaw === '' ? null : num(fmvRaw),
+    startingBid: num($('fStart').value) || 1,
+    increment: num($('fInc').value) || 1,
+    sortOrder: num($('fOrder').value),
+    closed: !!$('fClosed').checked,
+    revealHighBid: !!$('fReveal').checked,
+    /* never reset the live numbers when editing */
+    highBid: existing ? num(existing.highBid) : 0,
+    bidCount: existing ? num(existing.bidCount) : 0,
+    lastBidRef: existing ? (existing.lastBidRef || '') : ''
+  };
+  if (photo && photo.length > 900000){
+    flash('bad','That photo is too big to store. Remove it and add a smaller one.'); return;
+  }
+  BE.saveItem(id, data).then(function(){
+    S.editing = null; S.formOpen = false; S.photoDraft = null; S.photoInfo = null;
+    flash('ok', id ? 'Item saved.' : 'Item created.');
+  }).catch(function(err){ flash('bad', plainErr(err)); });
+}
+
+function plainErr(err){
+  var c = ((err && (err.code || err.message)) || '') + '';
+  if (/demo storage is full/i.test(c)) return c;
+  if (/permission-denied/i.test(c))
+    return 'The database refused that. Check your email is on the list inside firestore.rules, and that you published the rules.';
+  if (/unavailable|network/i.test(c)) return 'No connection to the database. Check the internet and try again.';
+  if (/invalid-argument|too large|exceeds/i.test(c)) return 'That item is too big to save. The photo is almost always the cause.';
+  if (/wrong-password|invalid-credential|user-not-found|invalid-login/i.test(c)) return 'That email and password did not match. Try again.';
+  if (/too-many-requests/i.test(c)) return 'Too many tries. Wait a minute, then try again.';
+  return 'It did not work: ' + c;
+}
+
+function reorder(id, dir){
+  var list = sortedItems();
+  var idx = -1; for (var i=0;i<list.length;i++) if (list[i].id===id) idx=i;
+  var swap = idx + dir;
+  if (idx < 0 || swap < 0 || swap >= list.length) return;
+  var a = list[idx], b = list[swap];
+  Promise.all([ BE.patchItem(a.id, {sortOrder: swap+1}), BE.patchItem(b.id, {sortOrder: idx+1}) ])
+    .catch(function(err){ flash('bad', plainErr(err)); });
+}
+
+function recompute(){
+  var jobs = sortedItems().map(function(i){
+    var t = truthFor(i.id);
+    if (num(i.highBid) === t.high && num(i.bidCount) === t.count) return null;
+    return BE.patchItem(i.id, { highBid: t.high, bidCount: t.count });
+  }).filter(Boolean);
+  if (!jobs.length){ flash('ok','Everything already matches. Nothing to fix.'); return; }
+  Promise.all(jobs).then(function(){ flash('ok','Fixed ' + jobs.length + ' item' + (jobs.length===1?'':'s') + '.'); })
+    .catch(function(err){ flash('bad', plainErr(err)); });
+}
+
+var SAMPLE_TABLE =
+'| title | description | contents | category | fairMarketValue | startingBid | increment |\n' +
+'| --- | --- | --- | --- | --- | --- | --- |\n' +
+'| Harvest Basket | Hazelnuts, preserves and a bottle from the valley. | Roasted hazelnuts; Marionberry preserves; Bottle of pinot | Food & Drink | 120 | 45 | 10 |\n' +
+'| Two Nights at the Cabin | Creekside cabin, woodstove, no wifi. | Two weeknights; Sleeps four; Firewood | Getaways | 600 | 250 | 25 |\n' +
+'| Framed Original Print | Hand-pulled linocut, framed in local maple. |  | Art | 210 | 75 | 15 |';
+
+document.addEventListener('click', function(ev){
+  var node = ev.target.closest ? ev.target.closest('[data-act]') : null;
+  if (!node) return;
+  var act = node.getAttribute('data-act'), id = node.getAttribute('data-id');
+
+  if (act === 'signout'){ BE.signOut().then(function(){ S.user=null; render(); }); }
+  else if (act === 'newitem'){ S.editing='new'; S.formOpen=true; S.photoDraft=null; S.photoInfo=null; render(); }
+  else if (act === 'edit'){ S.editing=id; S.formOpen=true; S.photoDraft=null; S.photoInfo=null; render(); window.scrollTo(0,0); }
+  else if (act === 'canceledit'){ S.editing=null; S.formOpen=false; S.photoDraft=null; S.photoInfo=null; render(); }
+  else if (act === 'dropphoto'){ S.photoDraft=''; S.photoInfo=null; render(); }
+  else if (act === 'up'){ reorder(id,-1); }
+  else if (act === 'down'){ reorder(id, 1); }
+  else if (act === 'del'){
+    var it = itemById(id);
+    if (window.confirm('Delete "' + (it?it.title:'this item') + '"? Bids already placed on it are kept but will have no item.'))
+      BE.deleteItem(id).then(function(){ flash('ok','Item deleted.'); }).catch(function(e){ flash('bad', plainErr(e)); });
+  }
+  else if (act === 'preview'){
+    if (S.importBusy) return;
+    var box = $('impText'); S.importText = box ? box.value : S.importText;
+    var r = parsePasted(S.importText);
+    S.importError = r.error || null; S.importRows = r.rows || null; S.importProblems = r.problems || null;
+    S.importHasPhoto = !!r.hasPhoto; S.importSummary = null;
+    if (S.importRows && location.protocol === 'file:' && S.importRows.some(function(x){ return !!x.photo; }))
+      S.importProblems = (S.importProblems || []).concat(['This page was opened from a folder (file://), so pictures ' +
+        'cannot be loaded by path. Put the site on a web address, or add the photos on the Items tab.']);
+    checkImportPhotos();
+    render();
+  }
+  else if (act === 'sampletable'){
+    if (S.importBusy) return;
+    S.importText = SAMPLE_TABLE; S.importRows=null; S.importError=null; S.importProblems=null;
+    S.importPhotoChecks=null; S.importSummary=null; S.importCheckToken++; render();
+  }
+  else if (act === 'gotoitems'){ S.importSummary=null; S.tab='items'; render(); window.scrollTo(0,0); }
+  else if (act === 'doimport'){
+    var rows = S.importRows || []; if (!rows.length || S.importBusy) return;
+    var base = S.items.length;
+    var withPhoto = rows.filter(function(r){ return !!r.photo; });
+    S.importBusy = { phase:'items', done:0, total:withPhoto.length }; S.importSummary = null; render();
+    /* Stage 1 — every item is created exactly as before, with photo:"". */
+    var jobs = rows.map(function(r, n){
+      return BE.saveItem(null, {
+        title:r.title, description:r.description, contents:r.contents, category:r.category,
+        photo:'', fairMarketValue:r.fairMarketValue, startingBid:r.startingBid, increment:r.increment,
+        sortOrder: base + n + 1, closed:false,
+        revealHighBid: (S.config.defaultRevealHighBid !== false),
+        highBid:0, bidCount:0, lastBidRef:''
+      });
+    });
+    Promise.all(jobs).then(function(ids){
+      if (!withPhoto.length){
+        /* No photo column, or every photo cell blank: unchanged behaviour. */
+        S.importBusy=null; S.importRows=null; S.importText=''; S.importProblems=null; S.importPhotoChecks=null;
+        flash('ok', rows.length + ' items created. Add photos on the Items tab.');
+        S.tab='items'; render(); return;
+      }
+      /* Stage 2 — photos, three at a time. Canvas decoding 24 pictures at
+         once is what makes a browser choke, and a failure here only costs
+         that one item its photo. */
+      S.importBusy.phase = 'photos'; render();
+      var tasks = [], meta = [];
+      rows.forEach(function(r, n){
+        if (!r.photo) return;
+        meta.push({ row:r.row, title:r.title, path:r.photo });
+        tasks.push(function(){ return attachPhotoByPath(ids[n], r.photo); });
+      });
+      return runPool(tasks, 3, function(){ if (S.importBusy){ S.importBusy.done++; render(); } })
+        .then(function(results){
+          var fails = [];
+          results.forEach(function(res, k){
+            if (res && res.ok) return;
+            fails.push({ row:meta[k].row, title:meta[k].title, path:meta[k].path,
+                         why: (res && res.why) || 'unexpected problem' });
+          });
+          S.importBusy=null; S.importRows=null; S.importText=''; S.importProblems=null; S.importPhotoChecks=null;
+          S.importSummary = { created:rows.length, photosTried:tasks.length, photosOk:tasks.length-fails.length, fails:fails };
+          render(); window.scrollTo(0,0);
+        });
+    }).catch(function(err){ S.importBusy=null; flash('bad', plainErr(err)); });
+  }
+  else if (act === 'print'){ window.print(); }
+  else if (act === 'dlwinners'){ downloadCsv('auction-winners.csv', winnersCsv()); }
+  else if (act === 'dlbids'){ downloadCsv('auction-all-bids.csv', allBidsCsv()); }
+  else if (act === 'togglebidding'){
+    var nowOpen = S.config.biddingOpen !== false;
+    if (nowOpen && !window.confirm('Close bidding on EVERYTHING? No guest will be able to bid until you open it again.')) return;
+    BE.saveConfig({ biddingOpen: !nowOpen }).then(function(){
+      flash('ok', nowOpen ? 'Bidding is closed.' : 'Bidding is open.'); }).catch(function(e){ flash('bad', plainErr(e)); });
+  }
+  else if (act === 'recompute'){ recompute(); }
+  else if (act === 'toggreveal'){ var i1 = itemById(id); if (i1)
+    BE.patchItem(id, { revealHighBid: !(i1.revealHighBid !== false) }).catch(function(e){ flash('bad', plainErr(e)); }); }
+  else if (act === 'toggclosed'){ var i2 = itemById(id); if (i2)
+    BE.patchItem(id, { closed: !(i2.closed === true) }).catch(function(e){ flash('bad', plainErr(e)); }); }
+  else if (act === 'makeqr'){
+    var u = $('qUrl'); S.qrUrl = u ? u.value.trim() : ''; S.qrError = null; render();
+  }
+});
+
+document.addEventListener('submit', function(ev){
+  var f = ev.target;
+  if (f.id === 'itemForm'){ saveItemFromForm(ev); }
+  else if (f.id === 'signinForm'){
+    ev.preventDefault();
+    var email = ($('aEmail').value||'').trim(), pw = $('aPass').value||'';
+    S.authError = null; render();
+    BE.signIn(email, pw).catch(function(err){ S.authError = plainErr(err); render(); });
+  }
+  else if (f.id === 'cfgForm'){
+    ev.preventDefault();
+    var cl = ($('cCloses').value||'').trim();
+    BE.saveConfig({
+      name: ($('cName').value||'').trim() || (CFG.eventName||'Silent Auction'),
+      closesAt: cl ? new Date(cl).getTime() : null,
+      defaultRevealHighBid: !!$('cReveal').checked
+    }).then(function(){ flash('ok','Event settings saved.'); }).catch(function(e){ flash('bad', plainErr(e)); });
+  }
+});
+
+document.addEventListener('change', function(ev){
+  if (ev.target.id !== 'fPhoto') return;
+  var file = ev.target.files && ev.target.files[0];
+  if (!file) return;
+  S.photoInfo = { bad:false, text:'Shrinking the photo…' }; render();
+  shrinkPhoto(file, function(err, out){
+    if (err){ S.photoInfo = { bad:true, text:err }; S.photoDraft = null; render(); return; }
+    S.photoDraft = out.url;
+    S.photoInfo = { bad:false, text:'Photo ready: ' + out.w + ' x ' + out.h + ' pixels, ' + out.kb +
+      ' KB stored (the limit is ' + (PHOTO.warnKB||700) + ' KB).' };
+    render();
+  });
+});
+document.addEventListener('input', function(ev){
+  if (ev.target.id === 'impText') S.importText = ev.target.value;
+  else if (ev.target.id === 'qUrl') S.qrUrl = ev.target.value.trim();
+});
+Array.prototype.forEach.call(document.querySelectorAll('nav.tabs button'), function(b){
+  b.addEventListener('click', function(){
+    S.tab = b.getAttribute('data-tab');
+    S.editing = null; S.formOpen = false; S.photoDraft = null; S.photoInfo = null;
+    render(); window.scrollTo(0,0);
+  });
+});
+
+/* =============================== RENDER ================================= */
+var rendering = false;
+function render(){
+  if (rendering) return; rendering = true;
+  var a = document.activeElement, aid = (a && a.id) ? a.id : null, sel = null;
+  try { if (aid && a.setSelectionRange) sel = [a.selectionStart, a.selectionEnd]; } catch(e){}
+  var sy = window.scrollY;
+
+  $('demoBar').innerHTML = DEMO
+    ? '<div class="note note--demo">DEMO MODE &mdash; not connected to Firebase. ' +
+      'Everything here is saved only in this browser, and it is the same pretend auction ' +
+      'that index.html shows.</div>' : '';
+
+  var ok = S.booted && (DEMO || isAdminUser(S.user));
+  $('tabsNav').hidden = !ok;
+  $('hdrRight').innerHTML = ok
+    ? '<span>' + esc(DEMO ? 'Demo organiser' : S.user.email) + '</span>' +
+      (DEMO ? '' : '<button type="button" data-act="signout">Sign out</button>')
+    : '';
+  $('hdrTitle').textContent = (S.config.name || CFG.eventName || 'Auction') + ' · Admin';
+
+  var m = $('main');
+  if (!S.booted) m.innerHTML = '<div class="gate center"><span class="spin"></span> Connecting&hellip;</div>';
+  else if (!ok) m.innerHTML = viewGate();
+  else {
+    var banner = S.msg ? '<div class="note note--' + (S.msg.kind==='ok'?'ok':(S.msg.kind==='warn'?'warn':'bad')) +
+                         '">' + esc(S.msg.text) + '</div>' : '';
+    var body = S.tab==='import'   ? viewImport()
+             : S.tab==='board'    ? viewBoard()
+             : S.tab==='winners'  ? viewWinners()
+             : S.tab==='controls' ? viewControls()
+             : S.tab==='qr'       ? viewQr()
+             :                      viewItems();
+    m.innerHTML = banner + body;
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('nav.tabs button'), function(b){
+    if (b.getAttribute('data-tab') === S.tab) b.setAttribute('aria-current','page');
+    else b.removeAttribute('aria-current');
+  });
+
+  if (aid){
+    var n = document.getElementById(aid);
+    if (n && n !== document.activeElement){
+      try { n.focus({preventScroll:true}); } catch(e){}
+      try { if (sel && n.setSelectionRange) n.setSelectionRange(sel[0], sel[1]); } catch(e){}
+      window.scrollTo(0, sy);
+    }
+  }
+  rendering = false;
+  if (S.tab === 'qr' && ok) drawQr();
+}
+
+/* ================================ BOOT ================================== */
+var Admin = {
+  snapErr: function(what){
+    return function(err){
+      flash('bad', 'Could not read ' + what + ': ' + plainErr(err));
+    };
+  }
+};
+window.Admin = Admin;
+
+var subscribed = false, configSeeded = false;
+function subscribe(){
+  if (subscribed) return; subscribed = true;
+  BE.onItems(function(v){ S.items = v; render(); });
+  BE.onBids(function(v){ S.bids = v; render(); });
+  BE.onBidders(function(v){ S.bidders = v; render(); });
+  BE.onConfig(function(v){
+    S.config = {
+      name: v.name || CFG.eventName || 'Silent Auction',
+      biddingOpen: v.biddingOpen !== false,
+      defaultRevealHighBid: v.defaultRevealHighBid !== false,
+      closesAt: v.closesAt || null
+    };
+    /* Bids are refused unless config/event exists and says bidding is open,
+       so create it the first time an organiser signs in. */
+    if (v.__exists === false && !configSeeded){
+      configSeeded = true;
+      BE.saveConfig({ name: CFG.eventName || 'Silent Auction', biddingOpen: true,
+                      defaultRevealHighBid: true, closesAt: null })
+        .then(function(){ flash('ok','Set up the event settings for the first time. Bidding is open.'); })
+        .catch(function(e){ flash('bad', plainErr(e)); });
+    }
+    render();
+  });
+}
+
+BE.start().then(function(user){
+  S.user = user; S.booted = true;
+  if (!DEMO && BE.onAuth) BE.onAuth(function(u){
+    S.user = u; S.authError = null;
+    if (isAdminUser(u)) subscribe();
+    render();
+  });
+  if (DEMO || isAdminUser(user)) subscribe();
+  render();
+}).catch(function(err){
+  S.booted = true;
+  S.bootError = (err && err.message) || 'Unknown problem starting up.';
+  render();
+});
+render();
+})();
+</script>
+</body>
+</html>

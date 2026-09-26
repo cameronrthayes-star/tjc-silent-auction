@@ -1,0 +1,1453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#1D4A3B">
+<title>Silent Auction</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* ===================================================================
+   Transformative Justice Community / ReGroup — Silent Auction
+   Palette grounded in the Willamette Valley: deep evergreen, river
+   slate, a warm harvest accent, on a parchment neutral that carries a
+   slight warm bias rather than flat grey.
+   =================================================================== */
+:root{
+  --bg:#F4F1EA; --surface:#FFFDF8; --surface-2:#EDE8DE; --surface-3:#E3DCCE;
+  --ink:#1A211D; --ink-2:#4A5852; --ink-3:#6E7C75;
+  --line:#DCD5C8; --line-2:#C8BFAE;
+  --brand:#1D4A3B; --brand-2:#2C6B55; --on-brand:#F6F3EC;
+  --slate:#4A5F6B; --slate-soft:#E4E9EC;
+  --accent:#C0651F; --accent-ink:#8B4513; --accent-soft:#F8E7D6;
+  --ok:#2F6B4F; --ok-soft:#E1EFE7;
+  --warn-soft:#FBEFD4; --warn-ink:#7A5310;
+  --danger:#A32B1E; --danger-soft:#F9E3E0;
+  --focus:#C0651F;
+  --shadow:0 1px 2px rgba(26,33,29,.06), 0 6px 18px rgba(26,33,29,.07);
+  --shadow-lg:0 10px 40px rgba(26,33,29,.18);
+  --r:14px; --r-sm:10px; --r-lg:20px;
+  --ff-display:"Fraunces", "Iowan Old Style", Georgia, serif;
+  --ff-ui:"Public Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --tap:48px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#111714; --surface:#1A211D; --surface-2:#232B26; --surface-3:#2C352F;
+    --ink:#ECE7DC; --ink-2:#B4BCB5; --ink-3:#8B958C;
+    --line:#333D37; --line-2:#44504A;
+    --brand:#5FA887; --brand-2:#7CC0A0; --on-brand:#0E1411;
+    --slate:#8FA6B3; --slate-soft:#232E34;
+    --accent:#E08B44; --accent-ink:#EFA76A; --accent-soft:#33261B;
+    --ok:#63B489; --ok-soft:#1C2A22;
+    --warn-soft:#2E2414; --warn-ink:#E0B667;
+    --danger:#E4796A; --danger-soft:#2E1A17;
+    --focus:#E08B44;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 6px 18px rgba(0,0,0,.35);
+    --shadow-lg:0 10px 40px rgba(0,0,0,.6);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#111714; --surface:#1A211D; --surface-2:#232B26; --surface-3:#2C352F;
+  --ink:#ECE7DC; --ink-2:#B4BCB5; --ink-3:#8B958C;
+  --line:#333D37; --line-2:#44504A;
+  --brand:#5FA887; --brand-2:#7CC0A0; --on-brand:#0E1411;
+  --slate:#8FA6B3; --slate-soft:#232E34;
+  --accent:#E08B44; --accent-ink:#EFA76A; --accent-soft:#33261B;
+  --ok:#63B489; --ok-soft:#1C2A22;
+  --warn-soft:#2E2414; --warn-ink:#E0B667;
+  --danger:#E4796A; --danger-soft:#2E1A17;
+  --focus:#E08B44;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:var(--ff-ui); font-size:16px; line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  padding-bottom:calc(76px + env(safe-area-inset-bottom));
+}
+h1,h2,h3{font-family:var(--ff-display); font-weight:600; line-height:1.2; margin:0}
+p{margin:0 0 .75em}
+button,input,select,textarea{font:inherit; color:inherit}
+:focus-visible{outline:3px solid var(--focus); outline-offset:2px; border-radius:6px}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{
+  outline:3px solid var(--focus); outline-offset:2px;
+}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.001ms!important; animation-iteration-count:1!important;
+    transition-duration:.001ms!important; scroll-behavior:auto!important}
+}
+
+/* ---------- layout ---------- */
+.wrap{max-width:640px; margin:0 auto; padding:0 16px}
+.stack>*+*{margin-top:12px}
+
+/* ---------- banners ---------- */
+#banners{position:sticky; top:0; z-index:60}
+.banner{
+  display:flex; gap:10px; align-items:center;
+  padding:10px 16px; font-size:.86rem; font-weight:600; letter-spacing:.01em;
+}
+.banner--demo{background:var(--accent); color:#fff}
+.banner--retry{background:var(--warn-soft); color:var(--warn-ink); border-bottom:1px solid var(--line)}
+.banner--offline{background:var(--slate-soft); color:var(--ink-2); border-bottom:1px solid var(--line)}
+.banner .dot{width:9px;height:9px;border-radius:50%;background:currentColor;flex:none;opacity:.9}
+.banner button{
+  margin-left:auto; background:rgba(255,255,255,.22); color:inherit; border:1px solid currentColor;
+  border-radius:999px; padding:4px 12px; font-size:.8rem; font-weight:700; cursor:pointer;
+}
+
+/* ---------- header ---------- */
+header.appbar{
+  background:var(--brand); color:var(--on-brand);
+  padding:18px 0 16px; border-bottom:3px solid var(--accent);
+}
+.appbar .eyebrow{font-size:.68rem; text-transform:uppercase; letter-spacing:.14em; opacity:.85; font-weight:700}
+.appbar h1{font-size:1.5rem; margin-top:3px; color:var(--on-brand)}
+.appbar .sub{font-size:.85rem; opacity:.88; margin-top:4px}
+.appbar .who{
+  margin-top:10px; display:flex; align-items:center; gap:8px; font-size:.82rem;
+}
+.appbar .who button{
+  background:transparent; border:1px solid rgba(255,255,255,.45); color:inherit;
+  border-radius:999px; padding:5px 12px; font-size:.78rem; font-weight:600; cursor:pointer; min-height:32px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) header.appbar{background:#17231D; color:var(--ink)}
+  :root:not([data-theme="light"]) .appbar h1{color:var(--ink)}
+}
+
+/* ---------- cards ---------- */
+.card{
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--r);
+  box-shadow:var(--shadow); overflow:hidden;
+}
+.card-pad{padding:16px}
+
+/* ---------- buttons ---------- */
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  min-height:var(--tap); padding:12px 18px; border-radius:var(--r-sm);
+  border:1px solid transparent; background:var(--surface-2); color:var(--ink);
+  font-weight:600; font-size:1rem; cursor:pointer; text-decoration:none;
+  transition:transform .08s ease, background .15s ease;
+  -webkit-tap-highlight-color:transparent;
+}
+.btn:active{transform:scale(.985)}
+.btn[disabled]{opacity:.5; cursor:not-allowed}
+.btn--primary{background:var(--brand); color:var(--on-brand); border-color:var(--brand)}
+.btn--accent{background:var(--accent); color:#fff; border-color:var(--accent)}
+.btn--ghost{background:transparent; border-color:var(--line-2); color:var(--ink-2)}
+.btn--block{display:flex; width:100%}
+.btn--lg{min-height:56px; font-size:1.06rem}
+.btn--danger{background:var(--danger-soft); color:var(--danger); border-color:var(--danger)}
+
+/* ---------- forms ---------- */
+label.fld{display:block; margin-bottom:14px}
+label.fld > span{display:block; font-size:.84rem; font-weight:600; color:var(--ink-2); margin-bottom:5px}
+label.fld .hint{font-weight:400; color:var(--ink-3)}
+input[type=text],input[type=tel],input[type=email],input[type=number],input[type=search],textarea,select{
+  width:100%; min-height:var(--tap); padding:12px 14px;
+  background:var(--surface); border:1.5px solid var(--line-2); border-radius:var(--r-sm);
+  font-size:1rem;
+}
+input[type=number]{font-family:var(--ff-ui); font-variant-numeric:tabular-nums}
+::placeholder{color:var(--ink-3)}
+
+/* ---------- chips ---------- */
+.chips{display:flex; gap:8px; overflow-x:auto; padding:2px 0 6px; -webkit-overflow-scrolling:touch; scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{
+  flex:none; padding:8px 14px; min-height:38px; border-radius:999px; cursor:pointer;
+  border:1.5px solid var(--line-2); background:var(--surface); color:var(--ink-2);
+  font-size:.86rem; font-weight:600; white-space:nowrap;
+}
+.chip[aria-pressed="true"]{background:var(--brand); color:var(--on-brand); border-color:var(--brand)}
+
+/* ---------- item cards : the CURRENT BID is the centrepiece ---------- */
+.items{display:grid; gap:12px; margin-top:14px}
+.item-card{
+  display:grid; grid-template-columns:96px 1fr; text-align:left; width:100%;
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--r);
+  box-shadow:var(--shadow); overflow:hidden; cursor:pointer; padding:0;
+  transition:transform .08s ease, border-color .15s ease;
+}
+.item-card:active{transform:scale(.99)}
+/* No photo: drop the 96px column rather than printing an empty grey box.
+   Every lot gains that width for its title and teaser. */
+.item-card--nophoto{grid-template-columns:1fr}
+.item-card.is-winning{border-color:var(--ok); border-width:1.5px}
+.item-card.is-outbid{border-color:var(--accent); border-width:1.5px}
+.item-card .thumb{width:96px; height:100%; min-height:132px; background:var(--surface-3); object-fit:cover; display:block}
+.item-card .body{padding:11px 13px 12px; min-width:0}
+.item-card h3{font-size:.98rem; margin:6px 0 0; color:var(--ink-2); font-weight:600}
+.item-card .teaser{
+  font-size:.8rem; color:var(--ink-3); margin:3px 0 0;
+  display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden;
+}
+
+/* The number. Readable across a room. */
+.bidnum{font-variant-numeric:tabular-nums; line-height:1}
+.bidnum .k{
+  font-size:.66rem; text-transform:uppercase; letter-spacing:.12em;
+  font-weight:800; color:var(--ink-3);
+}
+.bidnum .n{
+  font-family:var(--ff-display); font-weight:700; color:var(--brand);
+  font-size:2.15rem; letter-spacing:-.02em; margin-top:1px; display:block;
+}
+.bidnum .n.is-none{color:var(--ink-3); font-size:1.5rem}
+.bidnum .s{font-size:.76rem; color:var(--ink-3); margin-top:3px; font-weight:600}
+.bidnum .s b{color:var(--accent-ink); font-weight:800}
+.bidnum--hero .n{font-size:3.6rem}
+.bidnum--hero .k{font-size:.72rem}
+.bidnum--hero .s{font-size:.9rem; margin-top:6px}
+
+/* brief flash when the number changes under you */
+@keyframes bidflash{
+  0%{background:var(--accent-soft); box-shadow:0 0 0 6px var(--accent-soft)}
+  100%{background:transparent; box-shadow:0 0 0 6px transparent}
+}
+.bidnum.flash{animation:bidflash 1.1s ease-out; border-radius:8px}
+@media (prefers-reduced-motion: reduce){ .bidnum.flash{animation:none} }
+
+/* bidder-state strip */
+.state{
+  display:flex; align-items:center; gap:9px; margin-top:9px;
+  padding:9px 11px; border-radius:var(--r-sm); font-size:.86rem; font-weight:700;
+  border:1.5px solid transparent;
+}
+.state .ic{font-size:1rem; line-height:1; flex:none}
+.state--winning{background:var(--ok-soft); color:var(--ok); border-color:var(--ok)}
+.state--outbid{background:var(--warn-soft); color:var(--warn-ink); border-color:var(--accent)}
+.state--sending{background:var(--surface-2); color:var(--ink-2); border-color:var(--line-2)}
+.state--placed{background:var(--surface-2); color:var(--ink-2); border-color:var(--line-2)}
+.state--hero{font-size:1rem; padding:13px 15px; margin-top:14px}
+.state .rebid{
+  margin-left:auto; flex:none; min-height:40px; padding:0 15px; border-radius:999px;
+  background:var(--accent); color:#fff; border:0; font-weight:800; font-size:.88rem;
+  cursor:pointer; font-variant-numeric:tabular-nums; white-space:nowrap;
+}
+.state--hero .rebid{min-height:46px; font-size:.98rem; padding:0 18px}
+
+/* sort bar */
+.sortbar{display:flex; align-items:center; gap:8px; margin-top:12px; flex-wrap:wrap}
+.sortbar .lbl{font-size:.74rem; text-transform:uppercase; letter-spacing:.1em; font-weight:800; color:var(--ink-3)}
+.chip--state[aria-pressed="true"]{background:var(--accent); border-color:var(--accent); color:#fff}
+.chipsep{flex:none; width:1px; align-self:stretch; background:var(--line-2); margin:2px 2px}
+
+/* ---------- detail ---------- */
+.hero{width:100%; aspect-ratio:4/3; object-fit:cover; background:var(--surface-3); display:block}
+.detail h2{font-size:1.45rem; margin-bottom:6px}
+.pricebar{
+  display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--line);
+  border:1px solid var(--line); border-radius:var(--r-sm); overflow:hidden; margin:14px 0;
+}
+.pricebar div{background:var(--surface); padding:11px 13px}
+.pricebar .k{font-size:.72rem; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-3); font-weight:700}
+.pricebar .v{font-size:1.1rem; font-weight:700; font-variant-numeric:tabular-nums; margin-top:2px}
+ul.contents{list-style:none; padding:0; margin:10px 0 0}
+ul.contents li{
+  position:relative; padding:7px 0 7px 30px; font-size:.94rem; border-bottom:1px solid var(--line);
+}
+ul.contents li:last-child{border-bottom:0}
+ul.contents li::before{
+  content:""; position:absolute; left:2px; top:11px; width:18px; height:18px;
+  border-radius:5px; background:var(--brand);
+}
+/* The tick itself: a right-angle drawn with two borders, then rotated 45deg.
+   Two crossing diagonals would draw an X, which is what this used to do. */
+ul.contents li::after{
+  content:""; position:absolute; left:7.5px; top:14.5px; width:5px; height:9px;
+  border:solid var(--on-brand); border-width:0 2px 2px 0;
+  transform:rotate(45deg); transform-origin:center;
+}
+.quick{display:flex; flex-wrap:wrap; gap:8px; margin:10px 0}
+.quick button{
+  flex:1 1 calc(50% - 4px); min-height:46px; border-radius:var(--r-sm);
+  border:1.5px solid var(--brand); background:transparent; color:var(--brand);
+  font-weight:700; font-size:.95rem; cursor:pointer; font-variant-numeric:tabular-nums;
+}
+.quick button[aria-pressed="true"]{background:var(--brand); color:var(--on-brand)}
+
+/* ---------- notes ---------- */
+.note{border-radius:var(--r-sm); padding:12px 14px; font-size:.9rem; border:1px solid transparent}
+.note--ok{background:var(--ok-soft); color:var(--ok); border-color:var(--ok)}
+.note--warn{background:var(--warn-soft); color:var(--warn-ink); border-color:var(--line-2)}
+.note--bad{background:var(--danger-soft); color:var(--danger); border-color:var(--danger)}
+.note--quiet{background:var(--surface-2); color:var(--ink-2); border-color:var(--line)}
+.note--accent{background:var(--accent-soft); color:var(--accent-ink); border-color:var(--accent)}
+
+/* ---------- bid rows ---------- */
+.bidrow{
+  display:flex; align-items:center; gap:10px; padding:11px 0; border-bottom:1px solid var(--line);
+  font-variant-numeric:tabular-nums;
+}
+.bidrow:last-child{border-bottom:0}
+.bidrow .amt{font-weight:700; font-size:1.02rem}
+.bidrow .when{font-size:.78rem; color:var(--ink-3); margin-left:auto; text-align:right}
+
+/* ---------- sheet / modal ---------- */
+.sheet-back{
+  position:fixed; inset:0; background:rgba(16,22,19,.55); z-index:90;
+  display:flex; align-items:flex-end; justify-content:center; padding:0;
+}
+.sheet{
+  background:var(--surface); width:100%; max-width:640px;
+  border-radius:var(--r-lg) var(--r-lg) 0 0; box-shadow:var(--shadow-lg);
+  padding:22px 20px calc(22px + env(safe-area-inset-bottom));
+  animation:rise .18s ease-out;
+}
+@keyframes rise{from{transform:translateY(16px);opacity:.6}to{transform:none;opacity:1}}
+.sheet h3{font-size:1.2rem; margin-bottom:10px}
+.confirm-amount{
+  font-family:var(--ff-display); font-size:2.6rem; font-weight:700; color:var(--brand);
+  text-align:center; margin:6px 0 2px; font-variant-numeric:tabular-nums;
+}
+.confirm-for{text-align:center; color:var(--ink-2); font-size:.95rem; margin-bottom:16px}
+
+/* ---------- sticky bid bar (item detail) ----------
+   The bid controls sit ~2 screens down a long item page. This keeps the
+   cheapest accepted bid one thumb press away at any scroll position. */
+.bidbar{
+  position:fixed; left:0; right:0; z-index:71;
+  bottom:calc(62px + env(safe-area-inset-bottom));
+  background:var(--surface); border-top:1px solid var(--line);
+  box-shadow:0 -3px 16px rgba(26,33,29,.12);
+  display:flex; align-items:center; gap:12px; padding:9px 14px;
+}
+.bidbar .l{flex:0 0 auto; min-width:0}
+.bidbar .k{
+  font-size:.62rem; text-transform:uppercase; letter-spacing:.08em;
+  color:var(--ink-3); font-weight:700; white-space:nowrap;
+}
+.bidbar .v{
+  font-size:1.15rem; font-weight:800; font-variant-numeric:tabular-nums;
+  line-height:1.15; white-space:nowrap;
+}
+.bidbar button{flex:1 1 auto; min-height:50px; font-size:1rem}
+/* Room for the bar so it never covers the last row of the page. */
+body.has-bidbar{padding-bottom:calc(146px + env(safe-area-inset-bottom))}
+@media print{ .bidbar{display:none} }
+
+/* ---------- bottom nav ---------- */
+nav.tabs{
+  position:fixed; left:0; right:0; bottom:0; z-index:70;
+  background:var(--surface); border-top:1px solid var(--line);
+  display:flex; padding-bottom:env(safe-area-inset-bottom);
+  box-shadow:0 -2px 14px rgba(26,33,29,.07);
+}
+nav.tabs button{
+  flex:1; min-height:62px; background:transparent; border:0; cursor:pointer;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
+  color:var(--ink-3); font-size:.72rem; font-weight:700; letter-spacing:.02em; padding:6px 4px;
+}
+nav.tabs button[aria-current="page"]{color:var(--brand)}
+nav.tabs .ic{font-size:1.25rem; line-height:1}
+nav.tabs .badge{
+  position:absolute; transform:translate(16px,-12px);
+  background:var(--accent); color:#fff; border-radius:999px;
+  font-size:.62rem; padding:1px 6px; font-weight:800;
+}
+
+/* ---------- misc ---------- */
+.muted{color:var(--ink-3)}
+.small{font-size:.84rem}
+.center{text-align:center}
+.total{
+  display:flex; justify-content:space-between; align-items:baseline; gap:12px;
+  padding:14px 16px; background:var(--brand); color:var(--on-brand); border-radius:var(--r);
+  font-variant-numeric:tabular-nums;
+}
+.total .n{font-family:var(--ff-display); font-size:1.7rem; font-weight:700}
+.sr{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
+.spin{
+  display:inline-block; width:13px; height:13px; border-radius:50%; flex:none;
+  border:2px solid currentColor; border-right-color:transparent; animation:sp .7s linear infinite;
+}
+@keyframes sp{to{transform:rotate(360deg)}}
+.backlink{
+  display:inline-flex; align-items:center; gap:6px; min-height:44px;
+  background:none; border:0; color:var(--brand); font-weight:700; cursor:pointer; padding:0; font-size:.95rem;
+}
+.empty{text-align:center; padding:44px 20px; color:var(--ink-3)}
+.empty .big{font-size:2.2rem; margin-bottom:8px}
+</style>
+</head>
+<body>
+
+<div id="banners"></div>
+<header class="appbar">
+  <div class="wrap">
+    <div class="eyebrow">Transformative Justice Community</div>
+    <h1 id="eventName">Silent Auction</h1>
+    <div class="sub" id="eventSub">Loading&hellip;</div>
+    <div class="who" id="whoRow" hidden>
+      <span id="whoName"></span>
+      <button type="button" id="editMe">Edit</button>
+    </div>
+  </div>
+</header>
+
+<main id="view" class="wrap" style="padding-top:16px"></main>
+
+<nav class="tabs" id="tabs" hidden>
+  <button type="button" data-tab="list" aria-current="page"><span class="ic" aria-hidden="true">&#9776;</span>Items</button>
+  <button type="button" data-tab="mybids"><span class="ic" aria-hidden="true">&#9873;</span>My Bids</button>
+</nav>
+
+<div id="sheet"></div>
+<div id="live" class="sr" role="status" aria-live="polite"></div>
+
+<script src="app-config.js"></script>
+<script>
+/* ===========================================================================
+   Bidder app.
+   The current bid is the centre of this screen. Amounts are public.
+   NAMES ARE NOT. Nothing here ever asks the database for another person's
+   bid, and the security rules would refuse if it did.
+   =========================================================================== */
+(function () {
+'use strict';
+
+var CFG  = window.AUCTION_CONFIG || {};
+var DEMO = !!CFG.demoMode;
+var PHOTO = CFG.photo || {};
+var BID_TIMEOUT = CFG.bidTimeoutMs || 9000;
+
+/* ----------------------------- small helpers ---------------------------- */
+function $(id){ return document.getElementById(id); }
+function esc(v){
+  return String(v == null ? '' : v)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function num(v){ var n = parseFloat(String(v).replace(/[^0-9.\-]/g,'')); return isFinite(n) ? n : 0; }
+function money(n){
+  n = Math.round(num(n) * 100) / 100;
+  var whole = Math.abs(n % 1) < 0.005;
+  return '$' + n.toLocaleString('en-US', {
+    minimumFractionDigits: whole ? 0 : 2, maximumFractionDigits: 2
+  });
+}
+function uuid(){
+  try { if (window.crypto && crypto.randomUUID) return crypto.randomUUID(); } catch(e){}
+  return 'b-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2,11);
+}
+function ago(ms){
+  if (!ms) return '';
+  var d = Date.now() - ms;
+  if (d < 45000) return 'just now';
+  if (d < 3600000) return Math.round(d/60000) + 'm ago';
+  if (d < 86400000) return Math.round(d/3600000) + 'h ago';
+  return new Date(ms).toLocaleDateString();
+}
+function clock(ms){
+  if (!ms) return '';
+  return new Date(ms).toLocaleTimeString([], {hour:'numeric', minute:'2-digit'});
+}
+var LS = {
+  get: function(k, d){ try { var v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch(e){ return d; } },
+  set: function(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch(e){ return false; } },
+  del: function(k){ try { localStorage.removeItem(k); } catch(e){} }
+};
+function tsToMs(v){
+  if (v == null) return 0;
+  if (typeof v === 'number') return v;
+  if (typeof v.toMillis === 'function') { try { return v.toMillis(); } catch(e){ return 0; } }
+  if (v.seconds) return v.seconds * 1000;
+  var t = Date.parse(v); return isFinite(t) ? t : 0;
+}
+
+/* ------------------------- demo sample photographs ----------------------- */
+/* Drawn as SVG so DEMO MODE needs no network at all. */
+function demoPhoto(a, b, glyph){
+  var svg =
+    '<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">' +
+    '<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">' +
+    '<stop offset="0" stop-color="' + a + '"/><stop offset="1" stop-color="' + b + '"/>' +
+    '</linearGradient></defs>' +
+    '<rect width="800" height="600" fill="url(#g)"/>' +
+    '<path d="M0 470 L150 370 L280 450 L430 320 L560 420 L700 330 L800 390 L800 600 L0 600 Z" fill="rgba(0,0,0,.18)"/>' +
+    '<path d="M0 520 L180 440 L340 505 L520 415 L680 480 L800 440 L800 600 L0 600 Z" fill="rgba(0,0,0,.14)"/>' +
+    '<text x="400" y="300" font-family="Georgia,serif" font-size="180" fill="rgba(255,255,255,.88)" ' +
+    'text-anchor="middle" dominant-baseline="middle">' + glyph + '</text>' +
+    '<text x="400" y="555" font-family="Helvetica,Arial,sans-serif" font-size="26" letter-spacing="1" ' +
+    'fill="rgba(255,255,255,.72)" text-anchor="middle">SAMPLE</text></svg>';
+  return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+}
+
+var DEMO_ITEMS = [
+  { id:'demo-1', title:'Willamette Valley Harvest Basket', category:'Food & Drink',
+    description:'SAMPLE ITEM — not a real auction lot. A basket of the valley in autumn: hazelnuts from a family orchard outside Monroe, marionberry preserves, a loaf from the Thursday bakery, and a bottle of pinot from a vineyard that asked not to be named on the flyer.',
+    contents:['One pound roasted hazelnuts','Two jars marionberry preserves','Hand-milled pepper blend','Sourdough loaf, baked the morning of','Bottle of Willamette Valley pinot noir','Woven basket, yours to keep'],
+    fairMarketValue:120, startingBid:45, increment:10, sortOrder:1,
+    closed:false, revealHighBid:true, highBid:85, bidCount:4, lastBidRef:'',
+    photo: demoPhoto('#3F6B4E','#8FA24B','&#127808;') },
+  { id:'demo-2', title:'Two Nights at Fern Hollow Cabin', category:'Getaways',
+    description:'SAMPLE ITEM — not a real auction lot. Two nights in a one-room cabin on a creek forty minutes east of Sweet Home. Woodstove, no wifi, a porch that faces the water. Dates by arrangement, not available in December.',
+    contents:['Two consecutive weeknights','Sleeps four','Firewood provided','Coffee and the good kettle'],
+    fairMarketValue:600, startingBid:250, increment:25, sortOrder:2,
+    closed:false, revealHighBid:true, highBid:425, bidCount:5, lastBidRef:'',
+    photo: demoPhoto('#24483C','#4E7A6B','&#127968;') },
+  { id:'demo-3', title:'Cedar Raised Garden Bed, Built and Delivered', category:'Home & Garden',
+    description:'SAMPLE ITEM — not a real auction lot. Four foot by eight foot cedar bed, built in the TJC woodshop by people in the program, delivered and assembled within thirty miles of Albany.',
+    contents:['4ft x 8ft untreated cedar bed','Delivery within 30 miles','Assembly on site','Two cubic yards of soil'],
+    fairMarketValue:340, startingBid:120, increment:20, sortOrder:3,
+    closed:false, revealHighBid:true, highBid:0, bidCount:0, lastBidRef:'',
+    photo: demoPhoto('#6B4A2F','#A87B4B','&#9874;') },
+  { id:'demo-4', title:'Dinner for Six, Cooked in Your Kitchen', category:'Experiences',
+    description:'SAMPLE ITEM — not a real auction lot. Three courses for six people, cooked in your own kitchen by two of our peer mentors who cooked professionally before. They shop, they cook, they wash up. You sit down.',
+    contents:['Menu planned with you','All groceries included','Three courses for six','Dishes done before they leave'],
+    fairMarketValue:500, startingBid:200, increment:25, sortOrder:4,
+    closed:false, revealHighBid:true, highBid:300, bidCount:4, lastBidRef:'',
+    photo: demoPhoto('#7A3B2E','#C0651F','&#127869;') },
+  { id:'demo-5', title:'"Salmon Run" — Framed Original Print', category:'Art',
+    description:'SAMPLE ITEM — not a real auction lot. A linocut of chinook running the McKenzie, pulled by hand, number four of an edition of twenty. Framed in local maple behind museum glass.',
+    contents:[], fairMarketValue:210, startingBid:75, increment:15, sortOrder:5,
+    closed:false, revealHighBid:true, highBid:0, bidCount:0, lastBidRef:'',
+    photo: demoPhoto('#2C4E63','#6E93A8','&#127907;') },
+  { id:'demo-6', title:'Reentry Ready Starter Kit', category:'Services',
+    description:'SAMPLE ITEM — not a real auction lot. This lot is SEALED: nobody sees anyone else’s bid, not even the amount. Sponsor one complete starter kit for somebody coming home: work boots, a phone with a year of service, and the first month of a bus pass.',
+    contents:['Work boots, fitted','Phone with 12 months of service','One month regional bus pass','Interview clothes','Two weeks of groceries'],
+    fairMarketValue:175, startingBid:60, increment:10, sortOrder:6,
+    closed:false, revealHighBid:false, highBid:0, bidCount:0, lastBidRef:'',
+    photo: demoPhoto('#3B4A55','#7A8D99','&#128188;') }
+];
+/* Pretend guests, so the demo shows a room that is already bidding.
+   Their bids are real rows in the demo bid store, which means the admin
+   console adds up correctly AND the bidder app has to filter them out by
+   owner exactly as it would against Firestore. */
+var DEMO_GUESTS = [
+  { uid:'demo-guest-1', name:'Marcus R.',  contact:'541-555-0112', tableNumber:'3' },
+  { uid:'demo-guest-2', name:'Tanya B.',   contact:'tanya@example.org', tableNumber:'5' },
+  { uid:'demo-guest-3', name:'Priya N.',   contact:'541-555-0177', tableNumber:'1' }
+];
+var H = 3600000;
+var DEMO_BIDS = [
+  ['demo-1', 0, 45,  9], ['demo-1', 1, 55,  8], ['demo-1', 0, 70,  5], ['demo-1', 2, 85,  2],
+  ['demo-2', 1, 250, 9], ['demo-2', 2, 300, 7], ['demo-2', 0, 350, 5],
+  ['demo-2', 1, 400, 3], ['demo-2', 2, 425, 1],
+  ['demo-4', 0, 200, 8], ['demo-4', 2, 225, 6], ['demo-4', 0, 275, 4], ['demo-4', 1, 300, 2]
+].map(function(r, n){
+  var g = DEMO_GUESTS[r[1]];
+  return { id:'demo-bid-' + n, itemId:r[0], bidderUid:g.uid, bidderName:g.name,
+           amount:r[2], createdAtMs: Date.now() - r[3] * H };
+});
+
+var DEMO_CONFIG = {
+  name: (CFG.eventName || 'TJC Silent Auction') + ' (Demo)',
+  biddingOpen: true, defaultRevealHighBid: true, closesAt: null
+};
+
+/* ============================== BACKENDS ================================= */
+/* Both backends expose the same handful of methods so the rest of the app
+   never needs to know which one is running. */
+
+function DemoBackend(){
+  var K = { items:'sa.demo.items', bids:'sa.demo.bids', cfg:'sa.demo.config',
+            bidders:'sa.demo.bidders', uid:'sa.demo.uid' };
+  var uid = LS.get(K.uid, null);
+  if (!uid) { uid = 'demo-' + uuid().slice(0,8); LS.set(K.uid, uid); }
+  var subs = { items:[], cfg:[], bids:[] };
+
+  function seed(){
+    if (!LS.get(K.items, null)) LS.set(K.items, DEMO_ITEMS);
+    if (!LS.get(K.cfg, null))   LS.set(K.cfg, DEMO_CONFIG);
+    if (!LS.get(K.bids, null))  LS.set(K.bids, DEMO_BIDS);
+    if (!LS.get(K.bidders, null)){
+      var b = {};
+      DEMO_GUESTS.forEach(function(g){
+        b[g.uid] = { name:g.name, contact:g.contact, tableNumber:g.tableNumber, createdAt:Date.now() };
+      });
+      LS.set(K.bidders, b);
+    }
+  }
+  function fireItems(){ var v = LS.get(K.items, []); subs.items.forEach(function(f){ f(v); }); }
+  function fireCfg(){   var v = LS.get(K.cfg, DEMO_CONFIG); subs.cfg.forEach(function(f){ f(v); }); }
+  function fireBids(){
+    var all = LS.get(K.bids, []);
+    var mine = all.filter(function(b){ return b.bidderUid === uid; });
+    subs.bids.forEach(function(f){ f(mine); });
+  }
+  try {
+    window.addEventListener('storage', function(e){
+      if (e.key === K.items) fireItems();
+      else if (e.key === K.cfg) fireCfg();
+      else if (e.key === K.bids) fireBids();
+    });
+  } catch(e){}
+
+  return {
+    demo:true,
+    start: function(){ seed(); return Promise.resolve(uid); },
+    onItems: function(cb){ subs.items.push(cb); cb(LS.get(K.items, [])); },
+    onConfig:function(cb){ subs.cfg.push(cb);   cb(LS.get(K.cfg, DEMO_CONFIG)); },
+    onMyBids:function(cb){ subs.bids.push(cb);  fireBids(); },
+    loadBidder: function(){ return Promise.resolve((LS.get(K.bidders, {}) || {})[uid] || null); },
+    saveBidder: function(p){
+      var all = LS.get(K.bidders, {}) || {}; all[uid] = p; LS.set(K.bidders, all);
+      return Promise.resolve();
+    },
+    createBid: function(bid){
+      var all = LS.get(K.bids, []);
+      if (all.some(function(b){ return b.id === bid.id; })) return Promise.resolve();
+      all.push(bid); LS.set(K.bids, all); fireBids();
+      return Promise.resolve();
+    },
+    confirmBidExists: function(id){
+      return Promise.resolve(LS.get(K.bids, []).some(function(b){ return b.id === id; }));
+    },
+    recordBidOnItem: function(itemId, patch){
+      var all = LS.get(K.items, []);
+      for (var i = 0; i < all.length; i++){
+        if (all[i].id === itemId){
+          for (var k in patch) if (Object.prototype.hasOwnProperty.call(patch,k)) all[i][k] = patch[k];
+          break;
+        }
+      }
+      LS.set(K.items, all); fireItems();
+      return Promise.resolve();
+    }
+  };
+}
+
+function FireBackend(){
+  var db, auth, uid = null;
+  function loadScript(src){
+    return new Promise(function(res, rej){
+      var s = document.createElement('script');
+      s.src = src; s.async = false;
+      s.onload = function(){ res(); };
+      s.onerror = function(){ rej(new Error('Could not download ' + src)); };
+      document.head.appendChild(s);
+    });
+  }
+  return {
+    demo:false,
+    start: function(){
+      return loadScript(CFG.sdk.app)
+        .then(function(){ return loadScript(CFG.sdk.auth); })
+        .then(function(){ return loadScript(CFG.sdk.firestore); })
+        .then(function(){
+          firebase.initializeApp(CFG.firebase);
+          db = firebase.firestore(); auth = firebase.auth();
+          return auth.signInAnonymously();
+        })
+        .then(function(cred){ uid = cred.user.uid; return uid; });
+    },
+    onItems: function(cb){
+      db.collection('items').onSnapshot(function(snap){
+        var out = []; snap.forEach(function(d){ var o = d.data() || {}; o.id = d.id; out.push(o); });
+        cb(out);
+      }, function(err){ App.backendError('items', err); });
+    },
+    onConfig: function(cb){
+      db.collection('config').doc('event').onSnapshot(function(d){
+        cb(d.exists ? (d.data() || {}) : {});
+      }, function(err){ App.backendError('config', err); });
+    },
+    onMyBids: function(cb){
+      /* The where() filter is not decoration. The security rules refuse any
+         query on `bids` that is not already narrowed to this person. */
+      db.collection('bids').where('bidderUid','==',uid).onSnapshot(function(snap){
+        var out = []; snap.forEach(function(d){ var o = d.data() || {}; o.id = d.id; out.push(o); });
+        cb(out);
+      }, function(err){ App.backendError('bids', err); });
+    },
+    loadBidder: function(){
+      return db.collection('bidders').doc(uid).get().then(function(d){
+        return d.exists ? d.data() : null;
+      }).catch(function(){ return null; });
+    },
+    saveBidder: function(p){
+      var rec = {
+        name: p.name, contact: p.contact || '', tableNumber: p.tableNumber || '',
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
+      return db.collection('bidders').doc(uid).set(rec, {merge:true});
+    },
+    createBid: function(bid){
+      var rec = {
+        itemId: bid.itemId, bidderUid: bid.bidderUid, bidderName: bid.bidderName,
+        amount: bid.amount, createdAtMs: bid.createdAtMs,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
+      return db.collection('bids').doc(bid.id).set(rec);
+    },
+    confirmBidExists: function(id){
+      return db.collection('bids').where('bidderUid','==',uid).get().then(function(snap){
+        var found = false; snap.forEach(function(d){ if (d.id === id) found = true; });
+        return found;
+      }).catch(function(){ return false; });
+    },
+    recordBidOnItem: function(itemId, patch){
+      return db.collection('items').doc(itemId).update(patch);
+    }
+  };
+}
+
+var BE = DEMO ? DemoBackend() : FireBackend();
+
+/* =============================== STATE ================================== */
+var S = {
+  uid:null, profile:null, booted:false, bootError:null,
+  items:[], config:{ name: CFG.eventName || 'Silent Auction', biddingOpen:true,
+                     defaultRevealHighBid:true, closesAt:null },
+  bids:[], queue:[],
+  view:'list', itemId:null,
+  q:'', cat:'all', stateFilter:'all', sort:'featured',
+  drafts:{}, sheet:null, submitting:false, err:null,
+  online:(navigator.onLine !== false),
+  seenHigh:{}, flash:{}
+};
+
+var Q_KEY = 'sa.queue.' + (DEMO ? 'demo' : (CFG.firebase && CFG.firebase.projectId) || 'x');
+var P_KEY = 'sa.profile.' + (DEMO ? 'demo' : (CFG.firebase && CFG.firebase.projectId) || 'x');
+var CACHE_ITEMS = 'sa.cache.items.' + (DEMO ? 'demo' : (CFG.firebase && CFG.firebase.projectId) || 'x');
+
+/* ============================ BID QUEUE ================================== */
+/* Every bid lands here first and is written to localStorage before anything
+   is sent. A bid is never lost because the wifi dropped or the phone slept. */
+function qLoad(){ S.queue = LS.get(Q_KEY, []) || []; }
+function qSave(){ LS.set(Q_KEY, S.queue); }
+function qAdd(bid){
+  bid.status = 'sending'; bid.tries = 0; bid.note = '';
+  S.queue.push(bid); qSave();
+}
+function qFind(id){ for (var i=0;i<S.queue.length;i++) if (S.queue[i].id===id) return S.queue[i]; return null; }
+function qDrop(id){ S.queue = S.queue.filter(function(b){ return b.id !== id; }); qSave(); }
+function qUnsentCount(){ return S.queue.filter(function(b){ return b.status !== 'failed'; }).length; }
+function qFailedCount(){ return S.queue.filter(function(b){ return b.status === 'failed'; }).length; }
+
+function friendlyError(err){
+  var code = ((err && (err.code || err.message)) || '') + '';
+  if (/permission-denied|PERMISSION_DENIED|insufficient/i.test(code))
+    return { permanent:true, msg:'That bid was not accepted. Bidding may have closed, or someone has already bid the same or more.' };
+  if (/not-found/i.test(code))
+    return { permanent:true, msg:'That item is no longer in the auction.' };
+  if (/unavailable|network|offline|deadline|timeout|failed to (download|fetch)/i.test(code))
+    return { permanent:false, msg:'No connection right now. Still trying.' };
+  if (/already-exists/i.test(code))
+    return { permanent:false, msg:'Checking whether that bid already went through.' };
+  return { permanent:false, msg:'Could not reach the auction. Still trying.' };
+}
+
+var draining = false;
+function drainQueue(){
+  if (draining || !S.uid) return;
+  var next = null;
+  for (var i=0;i<S.queue.length;i++){ if (S.queue[i].status !== 'failed'){ next = S.queue[i]; break; } }
+  if (!next) return;
+  draining = true;
+  next.tries++;
+  var timed = false;
+  var timer = setTimeout(function(){ timed = true; }, BID_TIMEOUT);
+
+  BE.createBid(next).then(function(){
+    clearTimeout(timer);
+    onBidLanded(next);
+  }).catch(function(err){
+    clearTimeout(timer);
+    /* It may have actually gone through and only the answer got lost. */
+    BE.confirmBidExists(next.id).then(function(exists){
+      if (exists){ onBidLanded(next); return; }
+      var f = friendlyError(err);
+      if (f.permanent && !timed){ next.status = 'failed'; next.note = f.msg; }
+      else { next.status = 'sending'; next.note = f.msg; }
+      qSave(); draining = false; render();
+    });
+    return;
+  }).then(function(){ draining = false; });
+}
+
+function onBidLanded(bid){
+  qDrop(bid.id);
+  draining = false;
+  render();
+  say('Bid of ' + money(bid.amount) + ' confirmed.');
+  recordOnItem(bid);
+}
+
+/* After the bid document is safely stored, push the new number onto the item
+   so every other phone in the room sees it. Sealed items skip this entirely.
+   If it fails we do not bother the bidder: their bid is already recorded and
+   the organisers' board recomputes the truth from the bids themselves. */
+function recordOnItem(bid, attempt){
+  attempt = attempt || 1;
+  var item = itemById(bid.itemId);
+  if (!item || item.revealHighBid !== true) return;
+  var patch = { bidCount: num(item.bidCount) + 1, lastBidRef: bid.id };
+  if (num(bid.amount) > num(item.highBid)) patch.highBid = num(bid.amount);
+  BE.recordBidOnItem(bid.itemId, patch).catch(function(){
+    if (attempt >= 4) return;
+    setTimeout(function(){ recordOnItem(bid, attempt + 1); }, 400 * attempt);
+  });
+}
+
+/* ============================ COMPUTED VIEWS ============================= */
+function itemById(id){
+  for (var i=0;i<S.items.length;i++) if (S.items[i].id === id) return S.items[i];
+  return null;
+}
+function allBids(){
+  /* confirmed bids from the server, plus anything still in the outbox */
+  var seen = {}, out = [];
+  S.bids.forEach(function(b){ seen[b.id] = 1; out.push({
+    id:b.id, itemId:b.itemId, amount:num(b.amount), bidderName:b.bidderName,
+    at: tsToMs(b.createdAt) || num(b.createdAtMs), status:'confirmed', note:''
+  }); });
+  S.queue.forEach(function(b){ if (!seen[b.id]) out.push({
+    id:b.id, itemId:b.itemId, amount:num(b.amount), bidderName:b.bidderName,
+    at:num(b.createdAtMs), status:b.status, note:b.note || ''
+  }); });
+  out.sort(function(a,b){ return b.at - a.at; });
+  return out;
+}
+function myBidsFor(itemId){ return allBids().filter(function(b){ return b.itemId === itemId; }); }
+function myMaxFor(itemId){
+  var m = 0;
+  myBidsFor(itemId).forEach(function(b){ if (b.status !== 'failed' && b.amount > m) m = b.amount; });
+  return m;
+}
+function minBidFor(item){
+  var m = num(item.startingBid);
+  if (item.revealHighBid === true && num(item.highBid) > 0)
+    m = Math.max(m, num(item.highBid) + num(item.increment));
+  return m;
+}
+function isSending(itemId){
+  return myBidsFor(itemId).some(function(b){ return b.status === 'sending'; });
+}
+/* 'closed' | 'sending' | 'winning' | 'outbid' | 'placed' | 'none' */
+function stateFor(item){
+  var mine = myMaxFor(item.id);
+  if (item.closed === true || S.config.biddingOpen === false) return mine > 0 ? 'closed-mine' : 'closed';
+  if (isSending(item.id)) return 'sending';
+  if (item.revealHighBid !== true) return mine > 0 ? 'placed' : 'none';
+  if (mine <= 0) return 'none';
+  return mine >= num(item.highBid) ? 'winning' : 'outbid';
+}
+function categories(){
+  var seen = {}, out = [];
+  S.items.forEach(function(i){ var c = (i.category||'').trim(); if (c && !seen[c]){ seen[c]=1; out.push(c); } });
+  out.sort(); return out;
+}
+function visibleItems(){
+  var q = S.q.trim().toLowerCase();
+  var list = S.items.filter(function(i){
+    if (S.cat !== 'all' && (i.category||'') !== S.cat) return false;
+    if (S.stateFilter !== 'all'){
+      var st = stateFor(i);
+      if (S.stateFilter === 'winning' && st !== 'winning') return false;
+      if (S.stateFilter === 'outbid'  && st !== 'outbid')  return false;
+      if (S.stateFilter === 'mine'    && myMaxFor(i.id) <= 0) return false;
+    }
+    if (q){
+      var hay = ((i.title||'') + ' ' + (i.description||'') + ' ' + (i.category||'') + ' ' +
+                 ((i.contents||[]).join(' '))).toLowerCase();
+      if (hay.indexOf(q) < 0) return false;
+    }
+    return true;
+  });
+  if (S.sort === 'hot'){
+    list.sort(function(a,b){
+      var d = num(b.bidCount) - num(a.bidCount); if (d) return d;
+      d = num(b.highBid) - num(a.highBid); if (d) return d;
+      return num(a.sortOrder) - num(b.sortOrder);
+    });
+  } else if (S.sort === 'high'){
+    list.sort(function(a,b){
+      var d = num(b.highBid) - num(a.highBid); if (d) return d;
+      return num(a.sortOrder) - num(b.sortOrder);
+    });
+  } else {
+    list.sort(function(a,b){
+      var d = num(a.sortOrder) - num(b.sortOrder); if (d) return d;
+      return String(a.title||'').localeCompare(String(b.title||''));
+    });
+  }
+  return list;
+}
+function exposure(){
+  var per = {};
+  allBids().forEach(function(b){
+    if (b.status === 'failed') return;
+    if (!per[b.itemId] || b.amount > per[b.itemId]) per[b.itemId] = b.amount;
+  });
+  var t = 0; for (var k in per) if (Object.prototype.hasOwnProperty.call(per,k)) t += per[k];
+  return t;
+}
+
+/* ============================== RENDERING =============================== */
+function say(msg){ var n = $('live'); if (n) n.textContent = msg; }
+
+function renderBanners(){
+  var h = '';
+  if (DEMO){
+    h += '<div class="banner banner--demo"><span class="dot"></span>' +
+         'DEMO MODE &mdash; bids are saved only on this phone</div>';
+  }
+  var unsent = qUnsentCount(), failed = qFailedCount();
+  if (unsent > 0){
+    h += '<div class="banner banner--retry"><span class="spin"></span>' +
+         unsent + (unsent === 1 ? ' bid not yet sent &mdash; retrying' : ' bids not yet sent &mdash; retrying') +
+         '<button type="button" data-act="retry">Try now</button></div>';
+  }
+  if (failed > 0){
+    h += '<div class="banner banner--retry" style="background:var(--danger-soft);color:var(--danger)">' +
+         '<span class="dot"></span>' + failed + (failed === 1 ? ' bid was not accepted' : ' bids were not accepted') +
+         '<button type="button" data-act="gomybids">Review</button></div>';
+  }
+  if (!S.online){
+    h += '<div class="banner banner--offline"><span class="dot"></span>' +
+         'You are offline. Anything you bid is saved and sent when you are back.</div>';
+  }
+  $('banners').innerHTML = h;
+}
+
+function renderHeader(){
+  $('eventName').textContent = S.config.name || CFG.eventName || 'Silent Auction';
+  var sub = [];
+  if (S.config.biddingOpen === false) sub.push('Bidding is closed');
+  else sub.push('Bidding is open');
+  var c = tsToMs(S.config.closesAt);
+  if (c) sub.push('closes ' + clock(c));
+  $('eventSub').textContent = sub.join(' · ');
+  var w = $('whoRow');
+  if (S.profile && S.profile.name){
+    w.hidden = false;
+    $('whoName').textContent = 'Bidding as ' + S.profile.name +
+      (S.profile.tableNumber ? ' · Table ' + S.profile.tableNumber : '');
+  } else { w.hidden = true; }
+  $('tabs').hidden = !(S.profile && S.profile.name);
+}
+
+function bidNumBlock(item, hero){
+  var reveal = item.revealHighBid === true;
+  var cls = 'bidnum' + (hero ? ' bidnum--hero' : '') + (S.flash[item.id] ? ' flash' : '');
+  var h = '<div class="' + cls + '">';
+  if (!reveal){
+    h += '<div class="k">Sealed bidding</div>' +
+         '<span class="n is-none">' + money(item.startingBid) + '</span>' +
+         '<div class="s">Bids are private &mdash; this is the opening bid</div>';
+  } else if (num(item.highBid) > 0){
+    var c = num(item.bidCount);
+    h += '<div class="k">Current bid</div>' +
+         '<span class="n">' + money(item.highBid) + '</span>' +
+         '<div class="s"><b>' + (c === 1 ? '1 bid' : c + ' bids') + '</b></div>';
+  } else {
+    h += '<div class="k">Current bid</div>' +
+         '<span class="n is-none">' + money(item.startingBid) + '</span>' +
+         '<div class="s">No bids yet &mdash; this is the opening bid</div>';
+  }
+  return h + '</div>';
+}
+
+function stateStrip(item, hero){
+  var st = stateFor(item), h = hero ? ' state--hero' : '';
+  if (st === 'sending')
+    return '<div class="state state--sending' + h + '"><span class="spin"></span>Sending your bid&hellip;</div>';
+  if (st === 'winning')
+    return '<div class="state state--winning' + h + '"><span class="ic" aria-hidden="true">&#10004;</span>You hold the high bid</div>';
+  if (st === 'outbid'){
+    var next = num(item.highBid) + num(item.increment);
+    return '<div class="state state--outbid' + h + '"><span class="ic" aria-hidden="true">&#9650;</span>You&rsquo;ve been outbid' +
+      '<button type="button" class="rebid" data-act="quickbid" data-id="' + esc(item.id) +
+      '" data-amt="' + next + '">Bid ' + money(next) + '</button></div>';
+  }
+  if (st === 'placed')
+    return '<div class="state state--placed' + h + '"><span class="ic" aria-hidden="true">&#9873;</span>Your bid is in &mdash; ' +
+           money(myMaxFor(item.id)) + '</div>';
+  if (st === 'closed-mine')
+    return '<div class="state state--placed' + h + '"><span class="ic" aria-hidden="true">&#9873;</span>Closed &mdash; your last bid was ' +
+           money(myMaxFor(item.id)) + '</div>';
+  if (st === 'closed')
+    return '<div class="state state--placed' + h + '"><span class="ic" aria-hidden="true">&#9873;</span>Bidding closed</div>';
+  return '';
+}
+
+function cardHtml(item){
+  var st = stateFor(item);
+  var cls = 'item-card' + (st === 'winning' ? ' is-winning' : '') + (st === 'outbid' ? ' is-outbid' : '');
+  var photo = item.photo
+    ? '<img class="thumb" src="' + esc(item.photo) + '" alt="" loading="lazy">'
+    : '';
+  if (!item.photo) cls += ' item-card--nophoto';
+  var teaser = String(item.description || '').replace(/\s+/g, ' ').slice(0, 90);
+  var badges = '';
+  if (item.category) badges += '<span class="tag">' + esc(item.category) + '</span>';
+  if (item.closed === true) badges += '<span class="tag tag--closed">Closed</span>';
+  return '<div class="' + cls + '" role="button" tabindex="0" data-act="open" data-id="' + esc(item.id) +
+         '" aria-label="' + esc(item.title) + '">' + photo +
+         '<div class="body">' +
+           (badges ? '<div class="meta-row" style="margin-bottom:7px">' + badges + '</div>' : '') +
+           bidNumBlock(item, false) +
+           '<h3>' + esc(item.title) + '</h3>' +
+           (teaser ? '<p class="teaser">' + esc(teaser) + '</p>' : '') +
+           stateStrip(item, false) +
+         '</div></div>';
+}
+
+function viewList(){
+  var cats = categories(), vis = visibleItems();
+  var chip = function(act, val, label, on, extra){
+    return '<button type="button" class="chip' + (extra || '') + '" data-act="' + act +
+           '" data-val="' + esc(val) + '" aria-pressed="' + (on ? 'true' : 'false') + '">' + label + '</button>';
+  };
+  var h = '';
+  h += '<label class="fld" style="margin-bottom:10px"><span class="sr">Search items</span>' +
+       '<input type="search" id="q" placeholder="Search items&hellip;" value="' + esc(S.q) + '"></label>';
+
+  h += '<div class="chips" role="group" aria-label="Filter">' +
+       chip('cat','all','All items', S.cat === 'all' && S.stateFilter === 'all') +
+       chip('state','winning','You&rsquo;re winning', S.stateFilter === 'winning', ' chip--state') +
+       chip('state','outbid','Outbid', S.stateFilter === 'outbid', ' chip--state') +
+       chip('state','mine','My bids', S.stateFilter === 'mine', ' chip--state') +
+       (cats.length ? '<span class="chipsep" aria-hidden="true"></span>' : '') +
+       cats.map(function(c){ return chip('cat', c, esc(c), S.cat === c); }).join('') +
+       '</div>';
+
+  h += '<div class="sortbar"><span class="lbl">Sort</span>' +
+       chip('sort','featured','Featured', S.sort === 'featured') +
+       chip('sort','hot','&#128293; Hot', S.sort === 'hot') +
+       chip('sort','high','Highest bid', S.sort === 'high') +
+       '</div>';
+
+  if (!vis.length){
+    h += '<div class="empty"><div class="big" aria-hidden="true">&#9906;</div>' +
+         '<p>Nothing matches that.</p>' +
+         '<button type="button" class="btn btn--ghost" data-act="clearfilters">Show everything</button></div>';
+  } else {
+    h += '<div class="items">' + vis.map(cardHtml).join('') + '</div>';
+  }
+  h += '<p class="small muted center" style="margin:22px 0 8px">' +
+       'Other people can see the amount of the leading bid. ' +
+       'Nobody but the organisers can see <strong>who</strong> bid, including you.</p>';
+  return h;
+}
+
+function viewDetail(){
+  var item = itemById(S.itemId);
+  if (!item) return '<div class="empty"><p>That item is no longer in the auction.</p>' +
+    '<button type="button" class="btn btn--ghost" data-act="back">Back to items</button></div>';
+
+  var open = item.closed !== true && S.config.biddingOpen !== false;
+  var mine = myBidsFor(item.id);
+  var minB = minBidFor(item);
+  var draft = S.drafts[item.id];
+  if (draft == null) draft = '';
+
+  var h = '<button type="button" class="backlink" data-act="back">&#8592; All items</button>';
+  h += '<div class="card" style="margin-top:8px">';
+  if (item.photo) h += '<img class="hero" src="' + esc(item.photo) + '" alt="' + esc(item.title) + '">';
+  h += '<div class="card-pad detail">';
+
+  h += '<div class="meta-row" style="margin-bottom:10px">' +
+       (item.category ? '<span class="tag">' + esc(item.category) + '</span>' : '') +
+       (item.closed === true ? '<span class="tag tag--closed">Closed</span>' : '') + '</div>';
+
+  h += '<div style="text-align:center;padding:6px 0 2px">' + bidNumBlock(item, true) + '</div>';
+  h += stateStrip(item, true);
+
+  h += '<h2 style="margin-top:18px">' + esc(item.title) + '</h2>';
+  h += '<p style="color:var(--ink-2)">' + esc(item.description).replace(/\n/g,'<br>') + '</p>';
+
+  if (Array.isArray(item.contents) && item.contents.length){
+    h += '<h3 style="font-size:1rem;margin-top:16px">What is included</h3>' +
+         '<ul class="contents">' +
+         item.contents.map(function(c){ return '<li>' + esc(c) + '</li>'; }).join('') + '</ul>';
+  }
+
+  h += '<div class="pricebar">' +
+       '<div><div class="k">Opening bid</div><div class="v">' + money(item.startingBid) + '</div></div>' +
+       '<div><div class="k">Raise by</div><div class="v">' + money(item.increment) + '</div></div>' +
+       (item.fairMarketValue != null && num(item.fairMarketValue) > 0
+         ? '<div style="grid-column:1/-1"><div class="k">Fair market value</div><div class="v">' +
+           money(item.fairMarketValue) + '</div></div>' : '') +
+       '</div>';
+
+  if (!open){
+    h += '<div class="note note--quiet">Bidding is closed for this item. ' +
+         'The organisers will announce the winner.</div>';
+  } else {
+    var steps = [minB, minB + num(item.increment), minB + num(item.increment) * 2, minB + num(item.increment) * 5];
+    var seen = {}, btns = '';
+    steps.forEach(function(v){
+      v = Math.round(v * 100) / 100;
+      if (seen[v]) return; seen[v] = 1;
+      btns += '<button type="button" data-act="setamt" data-id="' + esc(item.id) + '" data-amt="' + v +
+              '" aria-pressed="' + (num(draft) === v ? 'true' : 'false') + '">' + money(v) + '</button>';
+    });
+    h += '<h3 style="font-size:1rem;margin-top:20px">Place your bid</h3>';
+    h += '<p class="small muted" style="margin-bottom:6px">Lowest bid accepted right now: <strong>' +
+         money(minB) + '</strong></p>';
+    h += '<div class="quick">' + btns + '</div>';
+    h += '<label class="fld"><span>Or type an amount</span>' +
+         '<input type="text" inputmode="decimal" id="amt" data-id="' + esc(item.id) +
+         '" placeholder="' + money(minB) + '" value="' + esc(draft) + '"></label>';
+    if (S.err && S.err.id === item.id)
+      h += '<div class="note note--bad" style="margin-bottom:12px">' + esc(S.err.msg) + '</div>';
+    h += '<button type="button" class="btn btn--primary btn--block btn--lg" data-act="review" data-id="' +
+         esc(item.id) + '">Review bid</button>';
+  }
+
+  // Sticky bar: shows the leading number and bids the minimum in one press.
+  // Rendered inside the view so it clears itself when the view changes.
+  if (open){
+    var barReveal = item.revealHighBid === true;
+    var barLabel  = barReveal && num(item.highBid) > 0 ? 'Current bid' : 'Opening bid';
+    var barValue  = barReveal && num(item.highBid) > 0 ? num(item.highBid) : num(item.startingBid);
+    h += '<div class="bidbar">' +
+           '<div class="l"><div class="k">' + barLabel + '</div>' +
+           '<div class="v">' + money(barValue) + '</div></div>' +
+           '<button type="button" class="btn btn--primary" data-act="quickbid" data-id="' +
+             esc(item.id) + '" data-amt="' + minB + '">Bid ' + money(minB) + '</button>' +
+         '</div>';
+  }
+
+  if (mine.length){
+    h += '<h3 style="font-size:1rem;margin-top:22px">Your bids on this item</h3>';
+    h += mine.map(function(b){
+      var tail = b.status === 'sending'
+        ? '<span class="tag tag--sending"><span class="spin"></span> sending</span>'
+        : (b.status === 'failed' ? '<span class="tag tag--closed">not accepted</span>'
+                                 : '<span class="when">' + esc(ago(b.at)) + '</span>');
+      return '<div class="bidrow"><span class="amt">' + money(b.amount) + '</span>' + tail +
+             (b.note ? '<span class="small muted" style="flex-basis:100%">' + esc(b.note) + '</span>' : '') +
+             '</div>';
+    }).join('');
+  }
+
+  h += '</div></div>';
+  return h;
+}
+
+function viewMyBids(){
+  var all = allBids();
+  if (!all.length){
+    return '<div class="empty"><div class="big" aria-hidden="true">&#9873;</div>' +
+           '<p>You have not bid on anything yet.</p>' +
+           '<button type="button" class="btn btn--primary" data-act="gohome">Browse the items</button></div>';
+  }
+  var groups = {}, order = [];
+  all.forEach(function(b){ if (!groups[b.itemId]){ groups[b.itemId] = []; order.push(b.itemId); } groups[b.itemId].push(b); });
+
+  var h = '<div class="total"><span>Your maximum exposure<br><span class="small" style="opacity:.8">' +
+          'Your highest bid on each item added up</span></span><span class="n">' + money(exposure()) + '</span></div>';
+  h += '<p class="small muted" style="margin:10px 0 16px">' +
+       'This is the most you could owe if every one of your leading bids wins. ' +
+       'It is not a bill.</p>';
+
+  order.forEach(function(iid){
+    var item = itemById(iid);
+    var title = item ? item.title : 'Item no longer listed';
+    h += '<div class="card" style="margin-bottom:12px"><div class="card-pad">' +
+         '<div class="meta-row" style="margin-bottom:8px">' +
+         (item && item.category ? '<span class="tag">' + esc(item.category) + '</span>' : '') + '</div>' +
+         '<h3 style="font-size:1.05rem">' + esc(title) + '</h3>';
+    if (item) h += '<div style="margin-top:8px">' + stateStrip(item, false) + '</div>';
+    h += groups[iid].map(function(b){
+      var tail = b.status === 'sending'
+        ? '<span class="tag tag--sending"><span class="spin"></span> sending</span>'
+        : (b.status === 'failed' ? '<span class="tag tag--closed">not accepted</span>'
+                                 : '<span class="when">' + esc(ago(b.at)) + '</span>');
+      return '<div class="bidrow"><span class="amt">' + money(b.amount) + '</span>' + tail +
+             (b.note ? '<span class="small muted" style="flex-basis:100%">' + esc(b.note) + '</span>' : '') +
+             (b.status === 'failed'
+               ? '<span style="flex-basis:100%;margin-top:6px"><button type="button" class="btn btn--ghost" ' +
+                 'style="min-height:38px;padding:6px 14px;font-size:.85rem" data-act="retryone" data-id="' +
+                 esc(b.id) + '">Try this bid again</button></span>' : '') +
+             '</div>';
+    }).join('');
+    if (item) h += '<div style="margin-top:12px"><button type="button" class="btn btn--ghost btn--block" ' +
+                   'data-act="open" data-id="' + esc(iid) + '">Open item</button></div>';
+    h += '</div></div>';
+  });
+  return h;
+}
+
+function viewWelcome(){
+  var p = S.profile || {};
+  return '<div class="card"><div class="card-pad">' +
+    '<h2 style="font-size:1.35rem">' + (p.name ? 'Your details' : 'Welcome') + '</h2>' +
+    (p.name ? '' : '<p style="color:var(--ink-2);margin-top:8px">' +
+      'You are bidding at <strong>' + esc(S.config.name || CFG.eventName) + '</strong>. ' +
+      'Tell us who you are so the organisers know who to hand the winnings to.</p>') +
+    '<div class="note note--quiet" style="margin:14px 0 18px">' +
+      'Everyone can see the leading <strong>amount</strong> on each item. ' +
+      'Only the event organisers can see <strong>your name and what you bid</strong>. ' +
+      'No other guest can.' +
+    '</div>' +
+    '<form id="regForm" novalidate>' +
+      '<label class="fld"><span>Your name</span>' +
+        '<input type="text" id="rName" autocomplete="name" required value="' + esc(p.name || '') + '"></label>' +
+      '<label class="fld"><span>Phone or email <span class="hint">so we can reach you if you win</span></span>' +
+        '<input type="text" id="rContact" autocomplete="tel" value="' + esc(p.contact || '') + '"></label>' +
+      '<label class="fld"><span>Table number <span class="hint">optional</span></span>' +
+        '<input type="text" id="rTable" inputmode="numeric" value="' + esc(p.tableNumber || '') + '"></label>' +
+      '<div id="regErr"></div>' +
+      '<button type="submit" class="btn btn--primary btn--block btn--lg" style="margin-top:6px">' +
+        (p.name ? 'Save' : 'Start bidding') + '</button>' +
+      (p.name ? '<button type="button" class="btn btn--ghost btn--block" style="margin-top:10px" ' +
+                'data-act="gohome">Cancel</button>' : '') +
+    '</form></div></div>';
+}
+
+function renderSheet(){
+  var n = $('sheet');
+  if (!S.sheet){ n.innerHTML = ''; return; }
+  var item = itemById(S.sheet.itemId);
+  if (!item){ S.sheet = null; n.innerHTML = ''; return; }
+  n.innerHTML =
+    '<div class="sheet-back" data-act="dismiss" role="dialog" aria-modal="true" aria-label="Confirm your bid">' +
+      '<div class="sheet" data-stop="1">' +
+        '<h3>Confirm your bid</h3>' +
+        '<div class="confirm-amount">' + money(S.sheet.amount) + '</div>' +
+        '<div class="confirm-for">on <strong>' + esc(item.title) + '</strong><br>' +
+          'as ' + esc((S.profile && S.profile.name) || '') + '</div>' +
+        (S.sheet.warn ? '<div class="note note--warn" style="margin-bottom:14px">' + S.sheet.warn + '</div>' : '') +
+        '<button type="button" class="btn btn--accent btn--block btn--lg" id="confirmBtn" data-act="commit"' +
+          (S.submitting ? ' disabled' : '') + '>' +
+          (S.submitting ? '<span class="spin"></span> Sending&hellip;' : 'Yes, place this bid') + '</button>' +
+        '<button type="button" class="btn btn--ghost btn--block" style="margin-top:10px" data-act="dismiss">' +
+          'Go back</button>' +
+      '</div>' +
+    '</div>';
+}
+
+var rendering = false;
+function render(){
+  if (rendering) return; rendering = true;
+  var act = document.activeElement;
+  var aid = (act && act.id) ? act.id : null;
+  var sel = null;
+  try { if (aid && act.setSelectionRange) sel = [act.selectionStart, act.selectionEnd]; } catch(e){}
+  var sy = window.scrollY;
+
+  renderBanners();
+  renderHeader();
+
+  var v = $('view');
+  if (!S.booted) v.innerHTML = S.bootError
+    ? '<div class="note note--bad">' + esc(S.bootError) + '</div>'
+    : '<div class="empty"><span class="spin"></span><p style="margin-top:12px">Connecting&hellip;</p></div>';
+  else if (!S.profile || !S.profile.name || S.view === 'welcome') v.innerHTML = viewWelcome();
+  else if (S.view === 'detail') v.innerHTML = viewDetail();
+  else if (S.view === 'mybids') v.innerHTML = viewMyBids();
+  else v.innerHTML = viewList();
+
+  // Pad the page only while the sticky bid bar is actually on screen.
+  if (v.querySelector('.bidbar')) document.body.classList.add('has-bidbar');
+  else document.body.classList.remove('has-bidbar');
+
+  Array.prototype.forEach.call(document.querySelectorAll('nav.tabs button'), function(b){
+    if (b.getAttribute('data-tab') === (S.view === 'mybids' ? 'mybids' : 'list'))
+      b.setAttribute('aria-current','page');
+    else b.removeAttribute('aria-current');
+  });
+
+  renderSheet();
+
+  if (aid){
+    var n2 = document.getElementById(aid);
+    if (n2 && n2 !== document.activeElement){
+      try { n2.focus({preventScroll:true}); } catch(e){ try { n2.focus(); } catch(e2){} }
+      try { if (sel && n2.setSelectionRange) n2.setSelectionRange(sel[0], sel[1]); } catch(e){}
+      window.scrollTo(0, sy);
+    }
+  }
+  S.flash = {};
+  rendering = false;
+}
+
+/* ============================== ACTIONS ================================= */
+function go(view, itemId){
+  S.view = view; S.itemId = itemId || null; S.err = null;
+  render(); window.scrollTo(0, 0);
+}
+function readAmount(itemId){
+  var box = $('amt');
+  if (box && box.getAttribute('data-id') === itemId) return num(box.value);
+  return num(S.drafts[itemId]);
+}
+function openConfirm(itemId, amount){
+  var item = itemById(itemId);
+  if (!item) return;
+  var minB = minBidFor(item);
+  S.err = null;
+  if (item.closed === true || S.config.biddingOpen === false){
+    S.err = { id:itemId, msg:'Bidding is closed for this item.' }; render(); return;
+  }
+  if (!(amount > 0)){
+    S.err = { id:itemId, msg:'Type how much you want to bid first.' }; render(); return;
+  }
+  if (amount < minB){
+    S.err = { id:itemId, msg:'The lowest bid accepted right now is ' + money(minB) + '. ' +
+              'Please bid at least that much.' }; render(); return;
+  }
+  var warn = '';
+  if (amount >= 1000 && amount >= minB * 10)
+    warn = 'That is a lot more than the current bid. Check you have not added an extra zero.';
+  S.sheet = { itemId:itemId, amount:amount, bidId:uuid(), warn:warn };
+  render();
+}
+function commit(){
+  var sh = S.sheet;
+  if (!sh || S.submitting) return;
+  if (qFind(sh.bidId)) { S.sheet = null; render(); return; }   /* double tap */
+  S.submitting = true;
+  var bid = { id:sh.bidId, itemId:sh.itemId, bidderUid:S.uid,
+              bidderName:(S.profile && S.profile.name) || '', amount:sh.amount,
+              createdAtMs: Date.now() };
+  qAdd(bid);
+  S.drafts[sh.itemId] = '';
+  S.sheet = null; S.submitting = false; S.err = null;
+  render();
+  say('Bid of ' + money(bid.amount) + ' is sending.');
+  drainQueue();
+}
+function saveProfile(e){
+  if (e) e.preventDefault();
+  var name = ($('rName').value || '').trim();
+  var contact = ($('rContact').value || '').trim();
+  var table = ($('rTable').value || '').trim();
+  var err = $('regErr');
+  if (!name){ err.innerHTML = '<div class="note note--bad" style="margin-bottom:12px">Please type your name.</div>';
+              $('rName').focus(); return; }
+  if (name.length > 120) name = name.slice(0,120);
+  var p = { name:name, contact:contact, tableNumber:table };
+  S.profile = p; LS.set(P_KEY, p);
+  err.innerHTML = '';
+  go('list');
+  BE.saveBidder(p).catch(function(){
+    /* Their name is stored on the phone either way; nothing is lost. */
+  });
+}
+
+document.addEventListener('click', function(ev){
+  var t = ev.target;
+  var stop = t.closest ? t.closest('[data-stop]') : null;
+  var node = t.closest ? t.closest('[data-act]') : null;
+  if (!node){
+    if (!stop && t.classList && t.classList.contains('sheet-back')) { S.sheet = null; render(); }
+    return;
+  }
+  var act = node.getAttribute('data-act');
+  var id  = node.getAttribute('data-id');
+  var val = node.getAttribute('data-val');
+  var amt = node.getAttribute('data-amt');
+
+  if (act === 'open'){ go('detail', id); }
+  else if (act === 'back' || act === 'gohome'){ go('list'); }
+  else if (act === 'gomybids'){ go('mybids'); }
+  else if (act === 'cat'){ S.cat = val; if (val === 'all') S.stateFilter = 'all'; render(); }
+  else if (act === 'state'){ S.stateFilter = (S.stateFilter === val ? 'all' : val); render(); }
+  else if (act === 'sort'){ S.sort = val; render(); }
+  else if (act === 'clearfilters'){ S.cat='all'; S.stateFilter='all'; S.q=''; render(); }
+  else if (act === 'setamt'){ S.drafts[id] = String(num(amt)); S.err = null; render(); }
+  else if (act === 'review'){ openConfirm(id, readAmount(id)); }
+  else if (act === 'quickbid'){ ev.stopPropagation(); go('detail', id); openConfirm(id, num(amt)); }
+  else if (act === 'commit'){ node.disabled = true; commit(); }
+  else if (act === 'dismiss'){ S.sheet = null; render(); }
+  else if (act === 'retry'){ S.queue.forEach(function(b){ if (b.status !== 'failed') b.note=''; });
+                             qSave(); drainQueue(); render(); }
+  else if (act === 'retryone'){ var b = qFind(id); if (b){ b.status='sending'; b.note=''; qSave(); drainQueue(); render(); } }
+});
+
+document.addEventListener('keydown', function(ev){
+  if (ev.key === 'Escape' && S.sheet){ S.sheet = null; render(); return; }
+  var node = ev.target.closest ? ev.target.closest('[role="button"][data-act]') : null;
+  if (node && (ev.key === 'Enter' || ev.key === ' ')){
+    ev.preventDefault();
+    node.click();
+  }
+});
+
+document.addEventListener('input', function(ev){
+  var t = ev.target;
+  if (t.id === 'q'){ S.q = t.value; render(); }
+  else if (t.id === 'amt'){ S.drafts[t.getAttribute('data-id')] = t.value; if (S.err) { S.err = null; } }
+});
+document.addEventListener('submit', function(ev){
+  if (ev.target && ev.target.id === 'regForm') saveProfile(ev);
+});
+$('editMe').addEventListener('click', function(){ go('welcome'); });
+Array.prototype.forEach.call(document.querySelectorAll('nav.tabs button'), function(b){
+  b.addEventListener('click', function(){ go(b.getAttribute('data-tab')); });
+});
+window.addEventListener('online',  function(){ S.online = true;  render(); drainQueue(); });
+window.addEventListener('offline', function(){ S.online = false; render(); });
+
+/* ================================ BOOT ================================== */
+function onItems(items){
+  items.forEach(function(i){
+    var prev = S.seenHigh[i.id];
+    if (prev != null && num(i.highBid) > num(prev)) S.flash[i.id] = 1;
+    S.seenHigh[i.id] = num(i.highBid);
+  });
+  S.items = items;
+  /* Cache without photos: data URLs would blow the browser's storage limit. */
+  try {
+    LS.set(CACHE_ITEMS, { items: items.map(function(i){
+      var c = {}; for (var k in i) if (k !== 'photo') c[k] = i[k]; c.photo = ''; return c;
+    }), config: S.config });
+  } catch(e){}
+  render();
+}
+function onConfig(cfg){
+  S.config = {
+    name: cfg.name || CFG.eventName || 'Silent Auction',
+    biddingOpen: cfg.biddingOpen !== false,
+    defaultRevealHighBid: cfg.defaultRevealHighBid !== false,
+    closesAt: cfg.closesAt || null
+  };
+  render();
+}
+var App = {
+  backendError: function(what, err){
+    var f = friendlyError(err);
+    if (f.permanent && what === 'bids'){
+      S.bootError = 'The auction refused to show your bids. Ask an organiser to check the setup.';
+    }
+    render();
+  }
+};
+window.App = App;
+
+function boot(){
+  qLoad();
+  S.profile = LS.get(P_KEY, null);
+  var cached = LS.get(CACHE_ITEMS, null);
+  if (cached && cached.items && cached.items.length){ S.items = cached.items; }
+  render();
+
+  BE.start().then(function(uid){
+    S.uid = uid; S.booted = true;
+    BE.onItems(onItems);
+    BE.onConfig(onConfig);
+    BE.onMyBids(function(b){ S.bids = b; render(); });
+    return BE.loadBidder();
+  }).then(function(p){
+    if (p && p.name && !(S.profile && S.profile.name)){ S.profile = p; LS.set(P_KEY, p); }
+    render();
+    drainQueue();
+  }).catch(function(err){
+    S.booted = true;
+    S.bootError = 'Could not reach the auction. Check this phone has internet and reload the page. ' +
+                  '(' + ((err && err.message) || 'unknown problem') + ')';
+    render();
+  });
+
+  setInterval(function(){ if (qUnsentCount() > 0) drainQueue(); }, 6000);
+}
+boot();
+})();
+</script>
+</body>
+</html>
