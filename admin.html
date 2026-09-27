@@ -1069,10 +1069,26 @@ document.addEventListener('click', function(ev){
       flash('ok', nowOpen ? 'Bidding is closed.' : 'Bidding is open.'); }).catch(function(e){ flash('bad', plainErr(e)); });
   }
   else if (act === 'recompute'){ recompute(); }
-  else if (act === 'toggreveal'){ var i1 = itemById(id); if (i1)
-    BE.patchItem(id, { revealHighBid: !(i1.revealHighBid !== false) }).catch(function(e){ flash('bad', plainErr(e)); }); }
-  else if (act === 'toggclosed'){ var i2 = itemById(id); if (i2)
-    BE.patchItem(id, { closed: !(i2.closed === true) }).catch(function(e){ flash('bad', plainErr(e)); }); }
+  else if (act === 'toggreveal' || act === 'toggclosed'){
+    var it = itemById(id); if (!it || node.disabled) return;
+    var who = (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) || null;
+    if (!DEMO && !(who && who.email)){
+      flash('bad', 'This browser is no longer signed in as an organiser. Reload this page and sign in again, then press the button once.');
+      return;
+    }
+    var patch = act === 'toggclosed' ? { closed: !(it.closed === true) } : { revealHighBid: !(it.revealHighBid !== false) };
+    var label = act === 'toggclosed' ? (patch.closed ? 'closed' : 'open for bids') : (patch.revealHighBid ? 'showing the current bid' : 'sealed');
+    node.disabled = true; node.textContent = 'Saving…';
+    BE.patchItem(id, patch).then(function(){
+      flash('ok', '"' + (it.title || 'Item') + '" is now ' + label + '.');
+    }, function(e){
+      node.disabled = false; render();
+      var c = ((e && (e.code || e.message)) || '') + '';
+      flash('bad', /permission-denied/i.test(c)
+        ? 'Not saved: this browser is not signed in as an organiser right now. Reload the page, sign in, and press the button once.'
+        : 'Not saved: ' + plainErr(e));
+    });
+  }
   else if (act === 'makeqr'){
     var u = $('qUrl'); S.qrUrl = u ? u.value.trim() : ''; S.qrError = null; render();
   }
@@ -1149,7 +1165,9 @@ function render(){
   else if (!ok) m.innerHTML = viewGate();
   else {
     var banner = S.msg ? '<div class="note note--' + (S.msg.kind==='ok'?'ok':(S.msg.kind==='warn'?'warn':'bad')) +
-                         '">' + esc(S.msg.text) + '</div>' : '';
+                         '" role="status" style="position:fixed;left:50%;transform:translateX(-50%);bottom:18px;z-index:99;' +
+                         'max-width:min(560px,calc(100vw - 32px));box-shadow:0 6px 24px rgba(0,0,0,.18);font-weight:700">' +
+                         esc(S.msg.text) + '</div>' : '';
     var body = S.tab==='import'   ? viewImport()
              : S.tab==='board'    ? viewBoard()
              : S.tab==='winners'  ? viewWinners()
