@@ -672,7 +672,8 @@ function FireBackend(){
     },
     saveBidder: function(p){
       var rec = {
-        name: p.name, contact: p.contact || '', tableNumber: p.tableNumber || '',
+        name: p.name, contact: p.contact || '', phone: p.phone || '', email: p.email || '',
+        tableNumber: p.tableNumber || '',
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       };
       return db.collection('bidders').doc(uid).set(rec, {merge:true});
@@ -1177,11 +1178,16 @@ function viewMyBids(){
   return h;
 }
 
+function phoneOf(p){ p = p || {}; if (p.phone) return p.phone;
+  return (p.contact && !/@/.test(p.contact)) ? p.contact : ''; }
+function emailOf(p){ p = p || {}; if (p.email) return p.email;
+  return (p.contact && /@/.test(p.contact)) ? p.contact : ''; }
+function profileComplete(p){ return !!(p && p.name && p.phone && p.email); }
 function viewWelcome(){
   var p = S.profile || {};
   return '<div class="card"><div class="card-pad">' +
     '<h2 style="font-size:1.35rem">' + (p.name ? 'Your details' : 'Welcome') + '</h2>' +
-    (p.name && !p.contact ? '<div class="note note--bad" style="margin-top:10px">Please add a phone number or email so the organisers can reach you if you win.</div>' : '') +
+    (p.name && !profileComplete(p) ? '<div class="note note--bad" style="margin-top:10px">Please add your phone number and email so the organisers can reach you if you win.</div>' : '') +
     (p.name ? '' : '<p style="color:var(--ink-2);margin-top:8px">' +
       'You are bidding at <strong>' + esc(S.config.name || CFG.eventName) + '</strong>. ' +
       'Tell us who you are so the organisers know who to hand the winnings to.</p>') +
@@ -1193,10 +1199,10 @@ function viewWelcome(){
     '<form id="regForm" novalidate>' +
       '<label class="fld"><span>Your name</span>' +
         '<input type="text" id="rName" autocomplete="name" required value="' + esc(p.name || '') + '"></label>' +
-      '<label class="fld"><span>Phone or email <span class="hint">required, so we can reach you if you win</span></span>' +
-        '<input type="text" id="rContact" autocomplete="tel" value="' + esc(p.contact || '') + '"></label>' +
-      '<label class="fld"><span>Table number <span class="hint">optional</span></span>' +
-        '<input type="text" id="rTable" inputmode="numeric" value="' + esc(p.tableNumber || '') + '"></label>' +
+      '<label class="fld"><span>Phone number</span>' +
+        '<input type="tel" id="rPhone" autocomplete="tel" inputmode="tel" required value="' + esc(phoneOf(p)) + '"></label>' +
+      '<label class="fld"><span>Email</span>' +
+        '<input type="email" id="rEmail" autocomplete="email" inputmode="email" required value="' + esc(emailOf(p)) + '"></label>' +
       '<div id="regErr"></div>' +
       '<button type="submit" class="btn btn--primary btn--block btn--lg" style="margin-top:6px">' +
         (p.name ? 'Save' : 'Start bidding') + '</button>' +
@@ -1243,7 +1249,7 @@ function render(){
   if (!S.booted) v.innerHTML = S.bootError
     ? '<div class="note note--bad">' + esc(S.bootError) + '</div>'
     : '<div class="empty"><span class="spin"></span><p style="margin-top:12px">Connecting&hellip;</p></div>';
-  else if (!S.profile || !S.profile.name || !S.profile.contact || S.view === 'welcome') v.innerHTML = viewWelcome();
+  else if (!profileComplete(S.profile) || S.view === 'welcome') v.innerHTML = viewWelcome();
   else if (S.view === 'detail') v.innerHTML = viewDetail();
   else if (S.view === 'mybids') v.innerHTML = viewMyBids();
   else v.innerHTML = viewList();
@@ -1321,16 +1327,16 @@ function commit(){
 function saveProfile(e){
   if (e) e.preventDefault();
   var name = ($('rName').value || '').trim();
-  var contact = ($('rContact').value || '').trim();
-  var table = ($('rTable').value || '').trim();
+  var phone = ($('rPhone').value || '').trim();
+  var email = ($('rEmail').value || '').trim();
   var err = $('regErr');
-  if (!name){ err.innerHTML = '<div class="note note--bad" style="margin-bottom:12px">Please type your name.</div>';
-              $('rName').focus(); return; }
-  if (!/@/.test(contact) && contact.replace(/\D/g,'').length < 7){
-    err.innerHTML = '<div class="note note--bad" style="margin-bottom:12px">Please add a phone number or email so we can reach you if you win.</div>';
-    $('rContact').focus(); return; }
+  function bad(msg, id){ err.innerHTML = '<div class="note note--bad" style="margin-bottom:12px">' + msg + '</div>'; $(id).focus(); }
+  if (!name) return bad('Please type your name.', 'rName');
+  if (phone.replace(/\D/g,'').length < 10) return bad('Please type your phone number, including area code.', 'rPhone');
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return bad('Please type a valid email address.', 'rEmail');
   if (name.length > 120) name = name.slice(0,120);
-  var p = { name:name, contact:contact, tableNumber:table };
+  var p = { name:name, phone:phone, email:email, contact:phone + ' · ' + email,
+            tableNumber:(S.profile && S.profile.tableNumber) || '' };
   S.profile = p; LS.set(P_KEY, p);
   err.innerHTML = '';
   go('list');
