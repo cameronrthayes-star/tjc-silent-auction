@@ -637,7 +637,12 @@ function FireBackend(){
         .then(function(){
           firebase.initializeApp(CFG.firebase);
           db = firebase.firestore(); auth = firebase.auth();
-          return auth.signInAnonymously();
+          /* Reuse whoever is already signed in on this browser (an organiser,
+             or this bidder's earlier session). Signing in anonymously over the
+             top would log an organiser out of the admin page. */
+          return new Promise(function(res){
+            var off = auth.onAuthStateChanged(function(u){ off(); res(u); });
+          }).then(function(u){ return u ? { user:u } : auth.signInAnonymously(); });
         })
         .then(function(cred){ uid = cred.user.uid; return uid; });
     },
@@ -1176,6 +1181,7 @@ function viewWelcome(){
   var p = S.profile || {};
   return '<div class="card"><div class="card-pad">' +
     '<h2 style="font-size:1.35rem">' + (p.name ? 'Your details' : 'Welcome') + '</h2>' +
+    (p.name && !p.contact ? '<div class="note note--bad" style="margin-top:10px">Please add a phone number or email so the organisers can reach you if you win.</div>' : '') +
     (p.name ? '' : '<p style="color:var(--ink-2);margin-top:8px">' +
       'You are bidding at <strong>' + esc(S.config.name || CFG.eventName) + '</strong>. ' +
       'Tell us who you are so the organisers know who to hand the winnings to.</p>') +
@@ -1187,7 +1193,7 @@ function viewWelcome(){
     '<form id="regForm" novalidate>' +
       '<label class="fld"><span>Your name</span>' +
         '<input type="text" id="rName" autocomplete="name" required value="' + esc(p.name || '') + '"></label>' +
-      '<label class="fld"><span>Phone or email <span class="hint">so we can reach you if you win</span></span>' +
+      '<label class="fld"><span>Phone or email <span class="hint">required, so we can reach you if you win</span></span>' +
         '<input type="text" id="rContact" autocomplete="tel" value="' + esc(p.contact || '') + '"></label>' +
       '<label class="fld"><span>Table number <span class="hint">optional</span></span>' +
         '<input type="text" id="rTable" inputmode="numeric" value="' + esc(p.tableNumber || '') + '"></label>' +
@@ -1237,7 +1243,7 @@ function render(){
   if (!S.booted) v.innerHTML = S.bootError
     ? '<div class="note note--bad">' + esc(S.bootError) + '</div>'
     : '<div class="empty"><span class="spin"></span><p style="margin-top:12px">Connecting&hellip;</p></div>';
-  else if (!S.profile || !S.profile.name || S.view === 'welcome') v.innerHTML = viewWelcome();
+  else if (!S.profile || !S.profile.name || !S.profile.contact || S.view === 'welcome') v.innerHTML = viewWelcome();
   else if (S.view === 'detail') v.innerHTML = viewDetail();
   else if (S.view === 'mybids') v.innerHTML = viewMyBids();
   else v.innerHTML = viewList();
@@ -1320,14 +1326,25 @@ function saveProfile(e){
   var err = $('regErr');
   if (!name){ err.innerHTML = '<div class="note note--bad" style="margin-bottom:12px">Please type your name.</div>';
               $('rName').focus(); return; }
+  if (!/@/.test(contact) && contact.replace(/\D/g,'').length < 7){
+    err.innerHTML = '<div class="note note--bad" style="margin-bottom:12px">Please add a phone number or email so we can reach you if you win.</div>';
+    $('rContact').focus(); return; }
   if (name.length > 120) name = name.slice(0,120);
   var p = { name:name, contact:contact, tableNumber:table };
   S.profile = p; LS.set(P_KEY, p);
   err.innerHTML = '';
   go('list');
-  BE.saveBidder(p).catch(function(){
-    /* Their name is stored on the phone either way; nothing is lost. */
-  });
+  S.profileSynced = false;
+  syncProfile();
+}
+/* Push this phone's name and contact to the organisers. Retried every few
+   seconds until it lands, so a failed first save is never silently lost. */
+function syncProfile(){
+  if (S.profileSynced || S.syncingProfile || !S.uid || !S.profile || !S.profile.name) return;
+  S.syncingProfile = true;
+  Promise.resolve().then(function(){ return BE.saveBidder(S.profile); })
+    .then(function(){ S.profileSynced = true; }, function(){})
+    .then(function(){ S.syncingProfile = false; });
 }
 
 document.addEventListener('click', function(ev){
@@ -1436,6 +1453,7 @@ function boot(){
   }).then(function(p){
     if (p && p.name && !(S.profile && S.profile.name)){ S.profile = p; LS.set(P_KEY, p); }
     render();
+    syncProfile();
     drainQueue();
   }).catch(function(err){
     S.booted = true;
@@ -1444,7 +1462,7 @@ function boot(){
     render();
   });
 
-  setInterval(function(){ if (qUnsentCount() > 0) drainQueue(); }, 6000);
+  setInterval(function(){ if (qUnsentCount() > 0) drainQueue(); syncProfile(); }, 6000);
 }
 boot();
 })();
